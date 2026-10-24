@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A review with no reviewer does not match the contract."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+expect: [REVIEW-SCHEMA]
+mutations:
+  - {op: remove, path: /reviewer}

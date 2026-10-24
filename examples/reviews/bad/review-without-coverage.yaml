@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "No coverage at all: findings: [] and a one-line summary would otherwise PASS."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+expect: [REVIEW-SCHEMA]
+mutations:
+  - {op: remove, path: /coverage}

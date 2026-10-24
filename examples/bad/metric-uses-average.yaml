@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An hourly average over a 74-minute incident warns."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_warnings: [PIR-METRIC-AVERAGE]
+mutations:
+  - {op: replace, path: /metrics/summary/0/during_incident, value: "average 6% over the hour"}

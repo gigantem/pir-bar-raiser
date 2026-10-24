@@ -1,0 +1,13 @@
+{
+  "name": "pir-assessor-vsce",
+  "version": "0.0.0",
+  "private": true,
+  "description": "The pinned packaging tool for the PIR Assessor VS Code extension. tools/build_vsix.py installs it with npm ci --ignore-scripts and runs it; nothing else uses it.",
+  "license": "GPL-3.0-or-later",
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "@vscode/vsce": "4.0.0"
+  }
+}

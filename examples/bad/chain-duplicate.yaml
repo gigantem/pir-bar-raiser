@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "The resolution chain copies the detection chain answer for answer."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_warnings: [PIR-CHAIN-DUPLICATE]
+mutations:
+  - {"op": "replace", "path": "/five_whys/2/whys/0/because", "value": "The alert requires 5% errors sustained for 10 minutes."}
+  - {"op": "replace", "path": "/five_whys/2/whys/1/because", "value": "It was widened from 2 to 10 minutes in May 2026 after false pages during a batch job."}
+  - {"op": "replace", "path": "/five_whys/2/whys/2/because", "value": "The alert is on an infrastructure symptom (5xx) rather than the customer outcome (order submissions succeeding), so it has to be de-tuned to avoid noise."}
+  - {"op": "replace", "path": "/five_whys/2/whys/3/because", "value": "No SLO-based alert on order-submit success exists; the service has an SLO but it is reported monthly, not alerted on."}

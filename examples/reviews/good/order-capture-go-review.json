@@ -1,0 +1,62 @@
+{
+  "subject": {
+    "kind": "pir-packet",
+    "path": "examples/good/order-capture-pool-exhaustion.yaml",
+    "id": "PIR-2026-0412",
+    "revision": "packet-sha256:46aa0366b605d5bcfdc77d580c36d35c5c7e957bae993e3ebc39753ae5d537b1"
+  },
+  "reviewer": "pir-reviewer",
+  "review_stage": "go",
+  "status": "PASS",
+  "summary": "The PIR says what happened, why, and what will change: three evidenced Five Whys chains reach process-level causes, every lesson has a corrective action with owned, dated action items, and the impact is counted and confirmed with partners. Two non-blocking observations for the GO review to weigh.",
+  "gate_evidence": {
+    "derived_by": "tools/render_pir_review_scaffold.py",
+    "validator_status": "PASS",
+    "error_count": 0,
+    "warning_count": 0,
+    "rule_ids": []
+  },
+  "clarification_ledgers": [
+    "examples/ledgers/good/order-capture-draft-L01-resolved.yaml"
+  ],
+  "blocker_count": 0,
+  "non_blocker_count": 2,
+  "waiver_count": 0,
+  "findings": [
+    {
+      "id": "FIND-001",
+      "severity": "warning",
+      "category": "action_item",
+      "section": "action_items",
+      "target": "AI-6",
+      "evidence": "Regenerate dashboards for the 14 services using the template and confirm each one shows its pools. Owner: Observability COE with each service team. Due 2026-11-07.",
+      "rationale": "A single item spanning 14 service teams has one due date and a shared owner; if any team slips, the item is late with no visibility of which. The deck asks for tasks someone can do and someone else can verify as done.",
+      "required_fix": "Keep AI-6 as the COE's template rollout and record per-service confirmation as a checklist in the item's status updates, or split the confirmation into one item per team with its own agreed owner.",
+      "clarification_question": "Has each of the 14 service teams agreed to confirm their regenerated dashboard by 2026-11-07, and who tracks the ones that have not?"
+    },
+    {
+      "id": "FIND-002",
+      "severity": "info",
+      "category": "review_process",
+      "section": "review",
+      "target": "Q-001",
+      "evidence": "Open question Q-001 on how many of the 1,900 non-re-attempted orders were placed through another channel, owner the product owner, due 2026-09-19.",
+      "rationale": "The answer changes the business-impact figure in the summary; if it arrives after publication the published number is stale.",
+      "required_fix": "Record the answer in the review section before publishing, or state in the summary that the $86k figure is an upper bound pending Q-001."
+    }
+  ],
+  "coverage": {
+    "document_control": "The five lifecycle instants carry offsets and agree with the timeline anchors, and the declared timings are what they give (9, 44, 21, 74, 95). The PIR owner is named, and the draft and publish dates sit within the deck's windows.",
+    "summary": "Names the service, the 11% error rate, the 09:12 to 10:26 AEST window on 3 September 2026, the cause and the customer count; it says the rollback is a permanent fix and points to CA-1 to CA-4 for the underlying gaps.",
+    "timeline": "Every row is evidenced, and both hypotheses are recorded (Catalogue rejected at 09:45, pool exhaustion proven at 10:05), so the 44 minutes of time to know can be followed.",
+    "metrics": "Both figures are compared with the same window on 27 August and annotated with the lifecycle instants; the summary table uses per-minute peaks and a saturation signal, not averages.",
+    "customer_impact": "Counted (4,180 submissions from 3,090 customers) with the query named, confirmed with two partners, and the unaffected paths and data integrity stated. The 1,900 non-re-attempted orders remain an estimate until Q-001 is answered (FIND-002).",
+    "response_analysis": "The detection, diagnosis and remediation gaps each carry their cost in minutes, the prevention gap names the change classification, and there is one channel of inquiry per chain.",
+    "five_whys": "Three chains (failure, detection, resolution), evidenced at every step, each ending at a process cause: the change policy, symptom-based alerting and the dashboard template. None stops at a person.",
+    "lessons": "Each lesson says what the organisation believed, why that was wrong, and traces to its root cause.",
+    "corrective_actions": "Every lesson has a corrective action; CA-2, CA-3 and CA-4 target time to detect, know and remediate, and CA-1 prevents the failure itself.",
+    "action_items": "Seven owned, agreed and dated items, each saying how it prevents recurrence. AI-6 spans 14 teams under one date and a shared owner (FIND-001).",
+    "review": "The team and GO outcomes are recorded with what each changed. Q-001 is open and due before publication (FIND-002).",
+    "cross_cutting": "The causes are policy, alerting and template gaps, and the body names roles and teams rather than people. Every figure traces to a named source."
+  }
+}

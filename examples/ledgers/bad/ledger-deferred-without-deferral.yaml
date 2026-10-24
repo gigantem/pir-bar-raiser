@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A deferred question with no owner, date or reason for the deferral."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-partial.yaml
+expect: [LEDGER-DEFERRAL-INCOMPLETE]
+mutations:
+  - {op: remove, path: /questions/12/deferral}

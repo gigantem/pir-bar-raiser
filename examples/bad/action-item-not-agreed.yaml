@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "In GO review, an owner who has not agreed blocks."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-AI-NOT-AGREED]
+mutations:
+  - {op: replace, path: /action_items/0/owner_agreed, value: false}

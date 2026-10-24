@@ -1,0 +1,11 @@
+{
+  "id": "FIND-001",
+  "severity": "blocker",
+  "category": "root_cause_depth",
+  "section": "five_whys",
+  "target": "RC-A",
+  "evidence": "<what the packet says, quoted>",
+  "rationale": "<why that falls short of what good looks like>",
+  "required_fix": "<the specific change>",
+  "clarification_question": "<the question the owner must answer, when one is needed>"
+}

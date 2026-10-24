@@ -1,0 +1,353 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# One question per validator rule. When tools/validate_pir.py reports a finding, the interview
+# generator (tools/generate_pir_interview.py) attaches this entry to it, so the owner is asked
+# the question that closes the gap rather than shown a rule id. Three fields per rule:
+#   ask           the question, addressed to the PIR owner; the finding's message is shown with it
+#   answer_shape  what a complete answer looks like, so the interviewer can tell when it is done
+#   applies_to    where in the packet the answer lands (the finding's own path is more precise
+#                 when it carries one; this is the fallback and the human description)
+# tools/validate_catalogs.py asserts this file names exactly the validator's RULES, once each.
+version: 0.1
+rules:
+  # ------------------------------------------------------------------ cross-cutting
+  - id: PIR-SCHEMA
+    ask: >-
+      The packet does not match the contract at this point. What is the correct value or
+      structure here?
+    answer_shape: >-
+      The corrected field in the shape schemas/pir-packet.schema.json requires; the finding
+      names what is wrong.
+    applies_to: the path named in the finding
+  - id: PIR-BLAME-LANGUAGE
+    ask: >-
+      This sentence makes the incident about a person. What is the process, design or tooling
+      gap that let it happen, regardless of who was on shift?
+    answer_shape: A restated sentence that names the gap and no individual.
+    applies_to: the field named in the finding
+  - id: PIR-ID-DUPLICATE
+    ask: Two items share this identifier. Which is which, and what id should the second carry?
+    answer_shape: Distinct ids, with every reference to them updated to match.
+    applies_to: the item named in the finding and every field that references it
+  - id: PIR-OWNER-PLACEHOLDER
+    ask: >-
+      This accountability field names nobody. Which person or team has agreed to own it?
+    answer_shape: A person or team name, confirmed with them, never a placeholder.
+    applies_to: the owner field named in the finding
+  - id: PIR-DATE-INVALID
+    ask: >-
+      This date or time is not a real one (the month, day, hour or offset is out of range).
+      What is the correct value, and where does it come from?
+    answer_shape: >-
+      An ISO-8601 date, or a timestamp with a UTC offset (for example 2026-09-03T09:21:00+10:00),
+      and the record it was read from.
+    applies_to: the date or timestamp field named in the finding
+  - id: PIR-EVIDENCE-PLACEHOLDER
+    ask: >-
+      This field cites nothing yet. Which dashboard, log, record or decision supports it, or
+      what effect does it actually have?
+    answer_shape: >-
+      A specific source (a dashboard and panel, a log query, a ticket, a decision log entry), or
+      for an effect, the mechanism by which it prevents recurrence.
+    applies_to: the evidence or effect field named in the finding
+  # ------------------------------------------------------------------ document control
+  - id: PIR-TIME-ORDER
+    ask: >-
+      These two lifecycle times are out of order. Which one is wrong, and what is the correct
+      time with its timezone?
+    answer_shape: >-
+      An ISO-8601 timestamp with a UTC offset (for example 2026-09-03T09:21:00+10:00) and the
+      evidence it came from.
+    applies_to: document_control.timestamps
+  - id: PIR-TIMESTAMPS-COLLAPSED
+    ask: >-
+      Every lifecycle time is the same instant, so the incident has no duration on paper. When did
+      impact start, when was it detected, when was the cause confirmed, and when was it mitigated
+      and resolved?
+    answer_shape: >-
+      Five ISO-8601 timestamps with a UTC offset, each with the record it was read from (an alert,
+      a chat message, a deploy log, a status-page update).
+    applies_to: document_control.timestamps
+  - id: PIR-TIMINGS-DECLARED
+    ask: >-
+      The declared timing disagrees with what the lifecycle timestamps give. Which is right, the
+      timestamp or the declared minutes?
+    answer_shape: >-
+      Either a corrected timestamp or the derived value. Time to detect, know, remediate, impact
+      and resolve are all derived from the five timestamps, so the timestamps win.
+    applies_to: key_timings or document_control.timestamps
+  - id: PIR-DUE-DRAFT-LATE
+    ask: >-
+      The draft is due later than the deck's two to three business days after mitigation. Is
+      there a reason, or can it be brought forward while memory and metrics are fresh?
+    answer_shape: A date inside the window, or the reason it cannot be, recorded in the ledger.
+    applies_to: document_control.draft_due
+  - id: PIR-DUE-PUBLISH-LATE
+    ask: >-
+      Publication is due later than the deck's one to two weeks after mitigation. Is there a
+      reason, or can it be brought forward?
+    answer_shape: A date inside the window, or the reason it cannot be, recorded in the ledger.
+    applies_to: document_control.publish_due
+  - id: PIR-DUE-BEFORE-INCIDENT
+    ask: >-
+      This due date for the PIR is before the incident was mitigated, so it cannot be the real one.
+      When is the draft due, and when is publication due?
+    answer_shape: >-
+      ISO-8601 dates on or after mitigation: the draft within 2 to 3 business days, publication
+      within 1 to 2 weeks.
+    applies_to: document_control.draft_due or document_control.publish_due
+  # ------------------------------------------------------------------ summary
+  - id: PIR-SUMMARY-SERVICE
+    ask: >-
+      The summary does not name the primary service. Rewrite the opening sentence as
+      "<Application> experienced <metric> at <date time>".
+    answer_shape: One paragraph whose first sentence starts with the primary service's name.
+    applies_to: summary
+  - id: PIR-SUMMARY-NUMBER
+    ask: >-
+      The summary carries no numbers. What value did the customer-facing metric reach, and how
+      many customers, orders or requests were affected?
+    answer_shape: The metric with its value and the impact counts, as figures, in the paragraph.
+    applies_to: summary
+  - id: PIR-SUMMARY-DATE
+    ask: When did it happen? The summary must say the date and the time.
+    answer_shape: The date and time with timezone in the opening sentence.
+    applies_to: summary
+  # ------------------------------------------------------------------ timeline
+  - id: PIR-TIMELINE-ORDER
+    ask: This timeline row is earlier than the row before it. Which time is wrong?
+    answer_shape: Corrected timestamps so the rows read forwards.
+    applies_to: timeline[n].at
+  - id: PIR-TIMELINE-PHASE-MISSING
+    ask: >-
+      No row marks this phase. When did it happen, what was observed or decided, and what is
+      the evidence a reader could check?
+    answer_shape: A timeline row with a timezone-qualified time, the event, its evidence and the phase.
+    applies_to: timeline
+  - id: PIR-TIMELINE-ANCHOR
+    ask: >-
+      The first row for this phase disagrees with the lifecycle timestamp for it. Which is
+      correct?
+    answer_shape: A corrected row time or a corrected lifecycle timestamp, with the evidence.
+    applies_to: timeline[n].at or document_control.timestamps
+  - id: PIR-TIMELINE-NO-DIAGNOSIS
+    ask: >-
+      Which hypotheses were considered, when was each proven or rejected, and on what evidence?
+      Rejected hypotheses are where time to know went.
+    answer_shape: One diagnosis row per hypothesis, including the rejected ones, each with evidence.
+    applies_to: timeline
+  # ------------------------------------------------------------------ metrics
+  - id: PIR-FIGURES-NONE
+    ask: >-
+      Which graph shows the customer-facing metric over the incident window, and which shows
+      the diagnostic metric that confirmed the cause? Where does the data live?
+    answer_shape: >-
+      At least one figure with an id, caption, source, time range, and whether it is annotated
+      and compared with a baseline.
+    applies_to: metrics.figures
+  - id: PIR-FIGURE-BASELINE
+    ask: >-
+      Which figure can be shown against a normal baseline, the same window on a comparable day?
+    answer_shape: A figure overlaid with or beside the baseline, with baseline_compared set true.
+    applies_to: metrics.figures[n]
+  - id: PIR-FIGURE-ANNOTATED
+    ask: >-
+      Which figure can be annotated with impact start, detection, mitigation and resolution?
+    answer_shape: A figure with the four lifecycle instants marked, with annotated set true.
+    applies_to: metrics.figures[n]
+  - id: PIR-METRIC-SUMMARY-EMPTY
+    ask: >-
+      For each metric that matters: what is normal, what was it during the incident, and where
+      does the data live?
+    answer_shape: One row per metric with its meaning, normal baseline, value during the incident and source.
+    applies_to: metrics.summary
+  - id: PIR-METRIC-AVERAGE
+    ask: >-
+      This row reports an average. What is the most granular value available (per minute, per
+      ten seconds, the peak)?
+    answer_shape: The granular value and its resolution in place of the average.
+    applies_to: metrics.summary[n]
+  # ------------------------------------------------------------------ customer impact
+  - id: PIR-IMPACT-QUANTIFIED
+    ask: >-
+      How many customers were affected, and how was that counted? If it cannot be determined,
+      say why.
+    answer_shape: >-
+      A count with its basis (the query and any de-duplication), or "not determined:" followed
+      by the reason.
+    applies_to: customer_impact.how_many and customer_impact.how_counted
+  - id: PIR-IMPACT-DURATION
+    ask: For how long were customers affected?
+    answer_shape: Minutes or hours, with the start and end times.
+    applies_to: customer_impact.duration
+  # ------------------------------------------------------------------ response analysis
+  - id: PIR-MISSED-AREAS
+    ask: >-
+      For this area of the response: what slowed it down or what was missed, and what did it
+      cost in time or impact? If nothing did, say so and why.
+    answer_shape: An entry with the area, the gap and its effect.
+    applies_to: response_analysis.missed
+  - id: PIR-CHANNELS-NONE
+    ask: >-
+      What distinct problems contributed to this incident? Each becomes a channel of inquiry
+      with its own Five Whys chain.
+    answer_shape: A list of channels, each with an id CH-n and a one-sentence problem statement.
+    applies_to: response_analysis.channels_of_inquiry
+  - id: PIR-CHANNEL-NO-CHAIN
+    ask: >-
+      This channel of inquiry has no Five Whys chain. Starting from the observed fact, why did
+      it happen, and why that, until the answer is a process, design or tooling gap?
+    answer_shape: >-
+      A chain with an id RC-x, a kind, the channel, the problem statement, at least three whys
+      each with evidence, and a root cause.
+    applies_to: five_whys
+  - id: PIR-CHAIN-UNKNOWN-CHANNEL
+    ask: >-
+      This chain follows a channel the response analysis does not declare. Which channel is it,
+      or should the channel be added?
+    answer_shape: A channel id that appears in both places.
+    applies_to: five_whys[n].channel or response_analysis.channels_of_inquiry
+  # ------------------------------------------------------------------ five whys
+  - id: PIR-CHAIN-KINDS
+    ask: >-
+      No chain follows this line of inquiry. What is the observed fact it starts from, and why
+      did it happen?
+    answer_shape: A chain of that kind with at least three evidenced whys and a root cause.
+    applies_to: five_whys
+  - id: PIR-CHAIN-PRIOR-ACTIONS
+    ask: >-
+      This is a repeat incident. Why did the actions from the previous occurrence not prevent
+      this one?
+    answer_shape: A chain of kind prior_actions that cites the previous PIR's action items.
+    applies_to: five_whys
+  - id: PIR-WHY-DEPTH
+    ask: This chain stops before it reaches a process cause. Why did the last answer happen?
+    answer_shape: >-
+      Further whys, each with evidence, until the cause would hold regardless of who was on
+      shift.
+    applies_to: five_whys[n].whys
+  - id: PIR-WHY-SHALLOW
+    ask: >-
+      This chain is short. Does its root cause hold regardless of who was on shift, or is there
+      another why?
+    answer_shape: Confirmation recorded in the ledger, or further whys with evidence.
+    applies_to: five_whys[n].whys
+  - id: PIR-ROOTCAUSE-ACTOR
+    ask: >-
+      This root cause names what a person did. What process, design or tooling gap allowed it?
+    answer_shape: A root cause stated as a gap in process, design or tooling.
+    applies_to: five_whys[n].root_cause
+  - id: PIR-WHY-REPEATED
+    ask: >-
+      This chain gives the same answer at two of its whys. What is the real answer to the later
+      why, one step closer to the process cause?
+    answer_shape: A different because, with the evidence for it.
+    applies_to: the why named in the finding
+  - id: PIR-CHAIN-DUPLICATE
+    ask: >-
+      This chain repeats another chain answer for answer. Which distinct problem does it follow,
+      and what are its own whys?
+    answer_shape: >-
+      Either the chain's own whys, or confirmation that the two channels are one problem and the
+      duplicate chain is removed.
+    applies_to: the chain named in the finding
+  # ------------------------------------------------------------------ lessons
+  - id: PIR-LESSONS-NONE
+    ask: For each root cause, what should have happened differently? Say it as "we".
+    answer_shape: Numbered lessons LL-n, each referencing the root cause it comes from.
+    applies_to: lessons
+  - id: PIR-LESSON-RC-UNKNOWN
+    ask: >-
+      This lesson references a root cause that does not exist. Which chain does it come from?
+    answer_shape: A valid RC id, or a new chain if the cause was never written down.
+    applies_to: lessons[n].root_cause
+  - id: PIR-RC-NO-LESSON
+    ask: This root cause has no lesson. What did we learn from it?
+    answer_shape: A lesson LL-n that references it.
+    applies_to: lessons
+  # ------------------------------------------------------------------ corrective actions
+  - id: PIR-CA-NONE
+    ask: For each lesson, what will we change?
+    answer_shape: >-
+      Corrective actions CA-n, each naming the lesson it addresses and which of prevention,
+      time to detect, time to know or time to remediate it improves.
+    applies_to: corrective_actions
+  - id: PIR-CA-LL-UNKNOWN
+    ask: This corrective action addresses a lesson that does not exist. Which lesson is it?
+    answer_shape: A valid LL id.
+    applies_to: corrective_actions[n].addresses
+  - id: PIR-LESSON-NO-CA
+    ask: This lesson has no corrective action. What will change because of it?
+    answer_shape: A corrective action CA-n that addresses it.
+    applies_to: corrective_actions
+  - id: PIR-CA-NO-HALVING
+    ask: >-
+      None of the corrective actions improves time to detect, time to know or time to
+      remediate. What would halve each of them?
+    answer_shape: >-
+      At least one corrective action with improves set to ttd, ttk or ttr, or the reason none
+      applies, recorded in the ledger.
+    applies_to: corrective_actions
+  # ------------------------------------------------------------------ action items
+  - id: PIR-AI-NONE
+    ask: >-
+      For each corrective action: what are the concrete tasks, who has agreed to own each, and
+      by when?
+    answer_shape: >-
+      Action items AI-n with a verifiable statement, the corrective action, an owner who agreed,
+      a due date, a status and how it prevents recurrence.
+    applies_to: action_items
+  - id: PIR-AI-CA-UNKNOWN
+    ask: This action item references a corrective action that does not exist. Which is it?
+    answer_shape: A valid CA id.
+    applies_to: action_items[n].corrective_action
+  - id: PIR-CA-NO-AI
+    ask: >-
+      This corrective action has no action item, so it will not happen. What is the first
+      concrete task, who owns it, and when is it due?
+    answer_shape: An action item AI-n that references it.
+    applies_to: action_items
+  - id: PIR-AI-VAGUE
+    ask: >-
+      This action item has no done state. What will exist or be true when it is complete?
+    answer_shape: A statement someone other than the owner could verify as done.
+    applies_to: action_items[n].statement
+  - id: PIR-AI-NOT-AGREED
+    ask: >-
+      Has the owner agreed to this action item? If not, who will ask them, and by when?
+    answer_shape: >-
+      owner_agreed set true once confirmed with the owner. Never assign an action to someone
+      who has not agreed.
+    applies_to: action_items[n].owner_agreed
+  - id: PIR-AI-DUE-BEFORE-INCIDENT
+    ask: This due date is before the incident was resolved. What is the intended date?
+    answer_shape: A due date after resolution that is reasonable for the work.
+    applies_to: action_items[n].due_date
+  - id: PIR-AI-DUE-FAR
+    ask: >-
+      This action item is due more than a year after the incident. Is the date real? If the work
+      is a programme, what is the first milestone that can be done within the year, and by when?
+    answer_shape: >-
+      A due date within a year of resolution, agreed with the owner; a longer programme split into
+      action items for its milestones, each with its own date.
+    applies_to: action_items[n].due_date
+  # ------------------------------------------------------------------ review
+  - id: PIR-GO-REVIEW-NO-TEAM
+    ask: >-
+      The PIR is in GO review but no team review is recorded. When did the team review happen,
+      who reviewed by role, and what changed as a result?
+    answer_shape: A review stage of kind team with reviewer, date and outcome.
+    applies_to: review.stages
+  - id: PIR-PUBLISHED-NO-REVIEW
+    ask: >-
+      The PIR is marked published but the team review or the GO review is not recorded. Which
+      reviews happened, when, and what changed?
+    answer_shape: Review stages for team and go, each with reviewer, date and outcome.
+    applies_to: review.stages
+  - id: PIR-PUBLISHED-OPEN-QUESTION
+    ask: >-
+      This question is still open but the PIR is published. What is the answer, or should the
+      PIR go back to review until it has one?
+    answer_shape: The recorded answer, or the status moved back.
+    applies_to: review.open_questions[n].answer, or status

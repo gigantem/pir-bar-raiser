@@ -1,0 +1,315 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# The ledger after both interviews: every answer recorded with its evidence and the person who
+# gave it, and applied to the packet (examples/good/order-capture-pool-exhaustion.yaml, the draft
+# with the answers in). Fictional.
+id: PIR-2026-0412-L01
+scope:
+  packet: examples/good/order-capture-pool-exhaustion.yaml
+  packet_id: PIR-2026-0412
+  interview: examples/interviews/order-capture-draft-I01.yaml
+  round: 1
+  source_artifacts:
+  - path: external:grafana/dashboards/order-capture-overview
+    role: dashboard the figures were taken from
+status: RESOLVED
+finding_counts:
+  total: 20
+  open: 0
+  blocking_open: 0
+questions:
+- id: Q-001
+  rule: PIR-TIMINGS-DECLARED
+  section: document_control
+  blocking: true
+  question: The declared timing disagrees with what the lifecycle timestamps give. Which is right, the
+    timestamp or the declared minutes?
+  status: answered
+  answer: 'The timestamps are right and the declared value is wrong: detection is the 09:21 customer-care
+    report, not the 09:27 alert, so time to detect is 9 minutes. The alert''s 15-minute latency is recorded
+    as a separate fact in the response analysis.'
+  answered_by: A. Example (Order Capture product owner)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /key_timings/time_to_detect_minutes
+- id: Q-002
+  rule: PIR-TIMELINE-NO-DIAGNOSIS
+  section: timeline
+  blocking: false
+  question: Which hypotheses were considered, when was each proven or rejected, and on what evidence?
+    Rejected hypotheses are where time to know went.
+  status: answered
+  answer: 'Two hypotheses. 09:45 ''Catalogue service degraded'' rejected: catalogue p99 latency normal
+    for the whole window (FIG-2 panel B). 10:05 ''DB pool exhausted after config change'' proven: pool
+    in-use at 60/60 from 09:11, timing matches CHG-88213 (ad-hoc query, FIG-2 panel A).'
+  answered_by: E. Model (Order Capture team lead)
+  answered_at: '2026-09-05'
+  answer_source: external:SRE/incidents/INC-2026-0412/war-room-decision-log.md
+  applied_to:
+  - /timeline/5
+  - /timeline/6
+- id: Q-003
+  rule: PIR-FIGURE-BASELINE
+  section: metrics
+  blocking: true
+  question: Which figure can be shown against a normal baseline, the same window on a comparable day?
+  status: answered
+  answer: FIG-1 re-plotted with 27 Aug 2026, same 08:30 to 11:30 window, overlaid dotted; the baseline
+    sits at 0.2% throughout.
+  answered_by: B. Sample (Order Capture SRE champion)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /metrics/figures/0/caption
+  - /metrics/figures/0/baseline_compared
+- id: Q-004
+  rule: PIR-FIGURE-ANNOTATED
+  section: metrics
+  blocking: true
+  question: Which figure can be annotated with impact start, detection, mitigation and resolution?
+  status: answered
+  answer: FIG-1 annotated at 09:04 deploy, 09:12 impact start, 09:27 alert and 10:26 rollback complete.
+  answered_by: B. Sample (Order Capture SRE champion)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /metrics/figures/0/caption
+  - /metrics/figures/0/annotated
+- id: Q-005
+  rule: PIR-METRIC-AVERAGE
+  section: metrics
+  blocking: false
+  question: This row reports an average. What is the most granular value available (per minute, per ten
+    seconds, the peak)?
+  status: answered
+  answer: 'Per-minute values: the rate rose from 0.2% to 8% at 09:12 and peaked at 11% by 09:20.'
+  answered_by: B. Sample (Order Capture SRE champion)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /metrics/summary/0/metric
+  - /metrics/summary/0/during_incident
+- id: Q-006
+  rule: PIR-IMPACT-QUANTIFIED
+  section: customer_impact
+  blocking: true
+  question: How many customers were affected, and how was that counted? If it cannot be determined, say
+    why.
+  status: answered
+  answer: 4,180 failed submissions from 3,090 distinct customer IDs between 09:12 and 10:26, about 11%
+    of submissions in the window. Counted with log query PIR-0412-failed over the gateway access logs,
+    de-duplicated by customer ID.
+  answered_by: A. Example (Order Capture product owner)
+  answered_at: '2026-09-06'
+  answer_source: query PIR-0412-failed, saved in the log platform, run 2026-09-06
+  applied_to:
+  - /customer_impact/how_many
+  - /customer_impact/how_counted
+- id: Q-007
+  rule: PIR-MISSED-AREAS
+  section: response_analysis
+  blocking: true
+  question: 'For this area of the response: what slowed it down or what was missed, and what did it cost
+    in time or impact? If nothing did, say so and why.'
+  status: answered
+  answer: 'Pool saturation is not on the service dashboard; it was found by an ad-hoc query after the
+    first hypothesis was rejected. Effect: around 25 of the 44 minutes of time to know.'
+  answered_by: E. Model (Order Capture team lead)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /response_analysis/missed/1
+- id: Q-008
+  rule: PIR-MISSED-AREAS
+  section: response_analysis
+  blocking: true
+  question: 'For this area of the response: what slowed it down or what was missed, and what did it cost
+    in time or impact? If nothing did, say so and why.'
+  status: answered
+  answer: 'Rollback required a manual decision and a manual pipeline trigger; no automated rollback exists
+    for this service. Effect: about 12 of the 21 minutes of time to remediate were mechanical steps a
+    deploy guard could have taken.'
+  answered_by: E. Model (Order Capture team lead)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /response_analysis/missed/2
+- id: Q-009
+  rule: PIR-CHANNEL-NO-CHAIN
+  section: response_analysis
+  blocking: true
+  question: This channel of inquiry has no Five Whys chain. Starting from the observed fact, why did it
+    happen, and why that, until the answer is a process, design or tooling gap?
+  status: answered
+  answer: 'Chain RC-B (detection) for CH-2: the alert requires 5% for 10 minutes; the window was widened
+    from 2 to 10 minutes in May 2026 after false pages; it needed de-tuning because it is on an infrastructure
+    symptom rather than the customer outcome; no SLO-based alert on order-submit success exists. Root
+    cause: alerting is based on infrastructure symptoms with de-tuned thresholds; there is no burn-rate
+    alert on the customer-facing SLO.'
+  answered_by: B. Sample (Order Capture SRE champion)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /five_whys/1
+- id: Q-010
+  rule: PIR-CHAIN-KINDS
+  section: five_whys
+  blocking: true
+  question: No chain follows this line of inquiry. What is the observed fact it starts from, and why did
+    it happen?
+  status: answered
+  answer: Covered by the RC-B chain recorded against Q-009, which is of kind detection.
+  answered_by: B. Sample (Order Capture SRE champion)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /five_whys/1/kind
+- id: Q-011
+  rule: PIR-CHAIN-KINDS
+  section: five_whys
+  blocking: true
+  question: No chain follows this line of inquiry. What is the observed fact it starts from, and why did
+    it happen?
+  status: answered
+  answer: 'A third channel of inquiry, CH-3 ''why diagnosis took 44 minutes from first report to confirmed
+    cause'', and chain RC-C (resolution): the first 18 minutes went on the Catalogue hypothesis; pool
+    saturation is not on the dashboard; the dashboard came from the standard template, which has no saturation
+    panels; the template was never reviewed against the four golden signals. Root cause: the standard
+    service dashboard template omits saturation signals.'
+  answered_by: E. Model (Order Capture team lead)
+  answered_at: '2026-09-05'
+  answer_source: owner interview, 2026-09-05 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /response_analysis/channels_of_inquiry/2
+  - /five_whys/2
+- id: Q-012
+  rule: PIR-WHY-DEPTH
+  section: five_whys
+  blocking: true
+  question: This chain stops before it reaches a process cause. Why did the last answer happen?
+  status: answered
+  answer: 'Three more whys: the two settings are tuned independently and nothing documents or enforces
+    the relationship; the change was not load-tested; the change policy classes configuration-only changes
+    as low risk and exempts them from load testing and canary. Root cause restated: change policy treats
+    capacity-affecting configuration as low risk.'
+  answered_by: D. Case (Change Management practice lead)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /five_whys/0/whys/2
+  - /five_whys/0/whys/3
+  - /five_whys/0/whys/4
+  - /five_whys/0/root_cause
+- id: Q-013
+  rule: PIR-CA-NO-HALVING
+  section: corrective_actions
+  blocking: false
+  question: None of the corrective actions improves time to detect, time to know or time to remediate.
+    What would halve each of them?
+  status: answered
+  answer: CA-2 halves time to detect (burn-rate alert on the order-submit SLO pages within 2 minutes);
+    CA-3 halves time to know (saturation panels on the standard template); CA-4 halves time to remediate
+    for deployment-caused incidents (deploy-guard auto-rollback).
+  answered_by: A. Example (Order Capture product owner)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /corrective_actions/1
+  - /corrective_actions/2
+  - /corrective_actions/3
+- id: Q-014
+  rule: PIR-AI-VAGUE
+  section: action_items
+  blocking: true
+  question: This action item has no done state. What will exist or be true when it is complete?
+  status: answered
+  answer: Amend the change-risk classification in the change policy so that any change to concurrency,
+    pool, queue or rate-limit parameters is classed performance-impacting. Done when the policy text is
+    published and the change tool applies the classification.
+  answered_by: D. Case (Change Management practice lead)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /action_items/0/statement
+  - /action_items/0/prevents_recurrence
+- id: Q-015
+  rule: PIR-AI-NOT-AGREED
+  section: action_items
+  blocking: false
+  question: Has the owner agreed to this action item? If not, who will ask them, and by when?
+  status: answered
+  answer: Agreed by the Change Management practice lead in the 2026-09-07 interview; due 2026-10-10.
+  answered_by: D. Case (Change Management practice lead)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /action_items/0/owner_agreed
+- id: Q-016
+  rule: PIR-SUMMARY-SERVICE
+  section: summary
+  blocking: true
+  question: The summary does not name the primary service. Rewrite the opening sentence as "<Application>
+    experienced <metric> at <date time>".
+  status: answered
+  answer: 'Rewritten: ''Order Capture API experienced an 11% HTTP 5xx error rate on order submissions
+    ...''.'
+  answered_by: A. Example (Order Capture product owner)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /summary
+- id: Q-017
+  rule: PIR-SUMMARY-NUMBER
+  section: summary
+  blocking: true
+  question: The summary carries no numbers. What value did the customer-facing metric reach, and how many
+    customers, orders or requests were affected?
+  status: answered
+  answer: 11% error rate; approximately 4,200 submissions from around 3,100 customers failed; 612 queued
+    orders delivered up to 40 minutes late; no orders lost or duplicated.
+  answered_by: A. Example (Order Capture product owner)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /summary
+- id: Q-018
+  rule: PIR-SUMMARY-DATE
+  section: summary
+  blocking: true
+  question: When did it happen? The summary must say the date and the time.
+  status: answered
+  answer: From 09:12 to 10:26 AEST on 3 September 2026.
+  answered_by: A. Example (Order Capture product owner)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /summary
+- id: Q-019
+  rule: PIR-OWNER-PLACEHOLDER
+  section: cross_cutting
+  blocking: true
+  question: This accountability field names nobody. Which person or team has agreed to own it?
+  status: answered
+  answer: Change Management practice lead, who agreed to AI-1 (see Q-015).
+  answered_by: D. Case (Change Management practice lead)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /action_items/0/owner
+- id: Q-020
+  rule: PIR-EVIDENCE-PLACEHOLDER
+  section: cross_cutting
+  blocking: true
+  question: This field cites nothing yet. Which dashboard, log, record or decision supports it, or what effect does it actually have?
+  status: answered
+  answer: "Routes capacity changes to load test and canary, so the untested interaction cannot reach production unexercised."
+  answered_by: D. Case (Change Management practice lead)
+  answered_at: '2026-09-07'
+  answer_source: owner interview, 2026-09-07 (facilitated by the Order Capture SRE champion)
+  applied_to:
+  - /action_items/0/prevents_recurrence
+notes:
+- 'Round 1 of 1: every question answered in two interviews (2026-09-05, 2026-09-07) and applied to the
+  packet, which then validated clean; see examples/good/order-capture-pool-exhaustion.yaml.'

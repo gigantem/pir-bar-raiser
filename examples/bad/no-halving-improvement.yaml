@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Every corrective action is prevention; nothing shortens detection, diagnosis or recovery."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_warnings: [PIR-CA-NO-HALVING]
+mutations:
+  - {op: replace, path: /corrective_actions/1/improves, value: [prevention]}
+  - {op: replace, path: /corrective_actions/2/improves, value: [prevention]}
+  - {op: replace, path: /corrective_actions/3/improves, value: [prevention]}

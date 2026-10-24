@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An open question that already carries an answer."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-open.yaml
+expect: [LEDGER-OPEN-HAS-ANSWER]
+mutations:
+  - {op: replace, path: /questions/0/answer, value: "The timestamps are right."}

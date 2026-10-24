@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# Optional local hooks. The real gate is .github/workflows/pir-gate.yml and its local
+# counterpart, tools/run_local_gates.sh; this is a faster echo of a subset.
+#
+#   one-time setup:  pip install pre-commit && pre-commit install
+#   full local gate: bash tools/run_local_gates.sh
+repos:
+  - repo: local
+    hooks:
+      - id: validate-pirs
+        name: validate PIR packets
+        entry: python tools/validate_pir.py
+        language: system
+        files: ^pirs/.*\.(yaml|yml|json)$
+
+      - id: ruff
+        name: ruff (lint)
+        entry: python -m ruff check
+        language: system
+        types: [python]
+
+      - id: ruff-format
+        name: ruff (format check)
+        entry: python -m ruff format --check
+        language: system
+        types: [python]

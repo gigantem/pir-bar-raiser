@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Graphs with no incident moments marked on them."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-FIGURE-ANNOTATED]
+mutations:
+  - {op: replace, path: /metrics/figures/0/annotated, value: false}
+  - {op: replace, path: /metrics/figures/1/annotated, value: false}

@@ -1,0 +1,474 @@
+id: PIR-2026-0412-I01
+packet: examples/draft/order-capture-draft.yaml
+packet_id: PIR-2026-0412
+packet_status: draft
+round: 1
+status: answers_required
+generated_by: tools/generate_pir_interview.py
+owner: Order Capture product owner (A. Example)
+facilitator: HUMAN_CONFIRM_FACILITATOR
+source_artifacts:
+- path: examples/draft/order-capture-draft.yaml
+  role: pir-packet
+- path: catalogs/pir-section-expectations.yaml
+  role: section-expectations
+- path: catalogs/pir-rule-questions.yaml
+  role: rule-questions
+instructions:
+- 'Work through the sections in the order given: it is the deck''s writing order, so the timeline and
+  metrics are settled before the analysis that depends on them, and the summary is written last.'
+- Answer blocking questions first; the packet cannot pass the gate while any is open. Advisory questions
+  are the deck's softer guidance and may be answered, deferred with an owner and date, or waived with
+  a reason.
+- Every answer comes with its evidence (a log query, a dashboard panel, a ticket, a record), and the person
+  or team who gave it. Nothing is invented to make the packet validate.
+- 'The PIR stays blameless: when an answer names a person, restate it as the process, design or tooling
+  gap.'
+- Replace every HUMAN_CONFIRM placeholder before using this interview with the owner.
+counts:
+  questions: 20
+  blocking: 16
+  advisory: 4
+  sections: 10
+sections:
+- key: document_control
+  title: Document control
+  template_section: '0'
+  writing_order: 0
+  expectation: 'The incident identity and the five lifecycle instants: impact start (when customers first
+    experienced it, not when we noticed), detected, cause confirmed, mitigated, resolved. Every timestamp
+    carries its timezone. The PIR owner is the product owner, named; the incident manager and contributors
+    are roles and teams. Draft and publish due dates follow the deck: draft within 2 to 3 business days
+    of mitigation, publish within 1 to 2 weeks.'
+  common_mistakes:
+  - Recording detection time as impact start, which hides time to detect.
+  - Times without a timezone.
+  - Leaving the owner as "TBD", so nobody presents the PIR.
+  example: 'INC-2026-0412, Sev-1, Order Capture API. Impact start 2026-09-03T09:12+10:00, detected 09:21
+    (first customer-care report), cause confirmed 10:05, mitigated 10:26, resolved 10:47. PIR owner: Order
+    Capture product owner (A. Example). Draft due 2026-09-08, publish due 2026-09-17.'
+  interview_prompt: Confirm the five lifecycle times with their timezone, the severity, the primary service,
+    and who owns and will present this PIR.
+  questions:
+  - id: Q-001
+    rule: PIR-TIMINGS-DECLARED
+    severity: error
+    blocking: true
+    path: $.key_timings.time_to_detect_minutes
+    finding: time_to_detect_minutes is declared as 15 but the lifecycle timestamps give 9; timestamps
+      drive metrics, so correct one or the other
+    ask: The declared timing disagrees with what the lifecycle timestamps give. Which is right, the timestamp
+      or the declared minutes?
+    answer_shape: Either a corrected timestamp or the derived value. Time to detect, know, remediate,
+      impact and resolve are all derived from the five timestamps, so the timestamps win.
+    applies_to: $.key_timings.time_to_detect_minutes
+- key: timeline
+  title: Timeline
+  template_section: '2'
+  writing_order: 1
+  expectation: 'A distilled, timestamped sequence of the events that mattered: the precursor change, the
+    first customer impact, the first signal, each hypothesis and the evidence that proved or rejected
+    it, each decision, mitigation, resolution and the key communications. Every row has a timezone-qualified
+    time and a source a reader could check. People appear by role, never by name. The phase column lets
+    a reader see where the time went. Ten to thirty rows is typical for a Sev-1; summarise chat, do not
+    paste it.'
+  common_mistakes:
+  - Starting at detection instead of impact start.
+  - Omitting rejected hypotheses, which hides time to know.
+  - '"Team investigated" rows with no content.'
+  example: '09:04 AEST CHG-88213 deployed (deploy log, precursor). 09:12 5xx rate rises from 0.2% to 8%
+    (FIG-1, impact start). 09:21 customer care reports failures (CS-55120, detection). 09:27 alert pages
+    on-call (A-2231, detection). 09:45 Hypothesis 1 rejected: catalogue p99 normal (FIG-2B, diagnosis).
+    10:05 Hypothesis 2 proven: pool 60/60 (FIG-2A, diagnosis). 10:14 decision to roll back (decision log,
+    remediation). 10:26 rollback complete, 5xx below 1% (FIG-1, mitigated). 10:47 queue drained, resolved.'
+  interview_prompt: Walk through the incident from the precursor to the final communication. For each
+    event give the time with timezone, what was observed or decided, the evidence, and the phase.
+  questions:
+  - id: Q-002
+    rule: PIR-TIMELINE-NO-DIAGNOSIS
+    severity: warning
+    blocking: false
+    path: $.timeline
+    finding: 'no diagnosis rows: record each hypothesis and the evidence that proved or rejected it, or
+      time to know is invisible'
+    ask: Which hypotheses were considered, when was each proven or rejected, and on what evidence? Rejected
+      hypotheses are where time to know went.
+    answer_shape: One diagnosis row per hypothesis, including the rejected ones, each with evidence.
+    applies_to: $.timeline
+- key: metrics
+  title: Metrics and graphs
+  template_section: '3'
+  writing_order: 2
+  expectation: 'At least one graph of the customer-facing metric and one of the diagnostic metric that
+    confirmed the cause, both over the same time range, annotated with impact start, detection, mitigation
+    and resolution, and shown against a normal baseline (the same window on a comparable day). Use the
+    most granular data available and avoid averages, which hide the shape of the failure. Add an architecture
+    or network diagram when the failure path crosses several components. Capture the data immediately:
+    high-resolution metrics are often downsampled or expire within days.'
+  common_mistakes:
+  - Screenshots with no axis labels, no time range or no timezone.
+  - Charts of different windows that cannot be compared.
+  - Hourly averages over a 74-minute incident.
+  - Showing only the metric that looked bad and not the baseline that shows what normal is.
+  example: 'FIG-1: POST /orders 5xx rate per minute, 3 Sep 08:30 to 11:30 AEST, overlaid with 27 Aug same
+    window; annotated at deploy, impact start, alert, rollback. FIG-2: pool in-use vs maximum per 10 s,
+    same window, flat at 60 from 09:11 to 10:25.'
+  interview_prompt: Which graphs show the customer-facing metric and the diagnostic metric over the incident
+    window? Is each annotated and compared to a normal baseline? Where is the data?
+  questions:
+  - id: Q-003
+    rule: PIR-FIGURE-BASELINE
+    severity: error
+    blocking: true
+    path: $.metrics.figures
+    finding: no figure is compared with a normal baseline; show the same window on a comparable day
+    ask: Which figure can be shown against a normal baseline, the same window on a comparable day?
+    answer_shape: A figure overlaid with or beside the baseline, with baseline_compared set true.
+    applies_to: $.metrics.figures
+  - id: Q-004
+    rule: PIR-FIGURE-ANNOTATED
+    severity: error
+    blocking: true
+    path: $.metrics.figures
+    finding: no figure is annotated with impact start, detection, mitigation and resolution
+    ask: Which figure can be annotated with impact start, detection, mitigation and resolution?
+    answer_shape: A figure with the four lifecycle instants marked, with annotated set true.
+    applies_to: $.metrics.figures
+  - id: Q-005
+    rule: PIR-METRIC-AVERAGE
+    severity: warning
+    blocking: false
+    path: $.metrics.summary[0].during_incident
+    finding: metric summary row 0 uses an average in 'during_incident'; averages hide the shape of the
+      failure, use the most granular metric available
+    ask: This row reports an average. What is the most granular value available (per minute, per ten seconds,
+      the peak)?
+    answer_shape: The granular value and its resolution in place of the average.
+    applies_to: $.metrics.summary[0].during_incident
+- key: customer_impact
+  title: Customer impact
+  template_section: '4'
+  writing_order: 3
+  expectation: Who was affected, what they experienced in their terms, how many, for how long, and which
+    business metrics and commitments were hit. Say how each number was derived so a reviewer can trust
+    it. Contact affected customers or partners to confirm impact; a PIR that reflects the customer's own
+    account restores trust faster than one that guesses. State clearly what was not affected and whether
+    any data was lost, duplicated or corrupted.
+  common_mistakes:
+  - '"Some customers were impacted."'
+  - Counting requests instead of customers.
+  - Omitting partners and internal consumers.
+  - Silence on data integrity, which readers will assume is bad news.
+  example: 4,180 failed submissions from 3,090 distinct customer IDs between 09:12 and 10:26 (log query
+    PIR-0412-failed, de-duplicated by customer ID), about 11% of submissions in the window. Two enterprise
+    partners contacted at 11:30; both confirmed the estimate. No orders lost or duplicated, verified by
+    reconciling the queue against the orders table at 11:05.
+  interview_prompt: Who was affected, what did they see, how many (and how was that counted), for how
+    long, what business metrics and commitments were hit, who was contacted, what was not affected, and
+    was any data lost?
+  questions:
+  - id: Q-006
+    rule: PIR-IMPACT-QUANTIFIED
+    severity: error
+    blocking: true
+    path: $.customer_impact.how_many
+    finding: 'how_many carries no number (digits in an id, a date or a time do not count); give the count
+      and its basis, or write ''not determined: <why>'''
+    ask: How many customers were affected, and how was that counted? If it cannot be determined, say why.
+    answer_shape: A count with its basis (the query and any de-duplication), or "not determined:" followed
+      by the reason.
+    applies_to: $.customer_impact.how_many
+- key: response_analysis
+  title: Incident response and post-incident analysis
+  template_section: '5'
+  writing_order: 4
+  expectation: An honest account of what the response missed and how it can be fixed, broken down by detection,
+    diagnosis, remediation, coordination and prevention. Each gap states its effect on the incident in
+    time or impact, which is what makes corrective actions prioritisable. Record what went well and why,
+    because those practices should be kept. This section identifies the distinct problems as channels
+    of inquiry; the Five Whys explain them.
+  common_mistakes:
+  - Only listing what went well.
+  - Gaps with no stated effect.
+  - Mixing causes with symptoms.
+  - Writing "human error" anywhere.
+  example: 'Detection: the only alert requires 5% errors for 10 minutes, so it fired 15 minutes after
+    impact start and 6 after customer care had noticed; effect, 9 minutes with no signal and 6 more without
+    monitoring. Diagnosis: pool saturation not on the dashboard; effect, around 25 of the 44 minutes of
+    time to know. Channels: (1) why the change exhausted the pool; (2) why the alert took 15 minutes;
+    (3) why diagnosis took 44.'
+  interview_prompt: 'For detection, diagnosis and remediation in turn: what slowed us down or what did
+    we miss, and what did it cost in time or impact? What went well? What distinct problems need their
+    own Five Whys chain?'
+  questions:
+  - id: Q-007
+    rule: PIR-MISSED-AREAS
+    severity: error
+    blocking: true
+    path: $.response_analysis.missed
+    finding: response_analysis.missed has no 'diagnosis' entry; say what slowed diagnosis down and what
+      it cost, or that nothing did and why
+    ask: 'For this area of the response: what slowed it down or what was missed, and what did it cost
+      in time or impact? If nothing did, say so and why.'
+    answer_shape: An entry with the area, the gap and its effect.
+    applies_to: $.response_analysis.missed
+  - id: Q-008
+    rule: PIR-MISSED-AREAS
+    severity: error
+    blocking: true
+    path: $.response_analysis.missed
+    finding: response_analysis.missed has no 'remediation' entry; say what slowed remediation down and
+      what it cost, or that nothing did and why
+    ask: 'For this area of the response: what slowed it down or what was missed, and what did it cost
+      in time or impact? If nothing did, say so and why.'
+    answer_shape: An entry with the area, the gap and its effect.
+    applies_to: $.response_analysis.missed
+  - id: Q-009
+    rule: PIR-CHANNEL-NO-CHAIN
+    severity: error
+    blocking: true
+    path: $.five_whys
+    finding: CH-2 has no Five Whys chain; every channel of inquiry is explained by one
+    ask: This channel of inquiry has no Five Whys chain. Starting from the observed fact, why did it happen,
+      and why that, until the answer is a process, design or tooling gap?
+    answer_shape: A chain with an id RC-x, a kind, the channel, the problem statement, at least three
+      whys each with evidence, and a root cause.
+    applies_to: $.five_whys
+- key: five_whys
+  title: Five Whys
+  template_section: '6'
+  writing_order: 5
+  expectation: One chain per channel of inquiry. Each chain starts from an observed fact and asks why
+    until it reaches a cause that is a process, design or tooling gap rather than an action by an individual,
+    and that would have prevented the problem regardless of who was on shift. Four to six whys is typical;
+    the number is not magic. Each answer cites evidence from the timeline or metrics. Chains of kind failure,
+    detection and resolution are required; a prior-actions chain is required for a repeat incident.
+  common_mistakes:
+  - Stopping at "the engineer changed the config" (that is where the chain starts).
+  - A chain that reaches the right answer at why 2 and then pads to five.
+  - Answers with no evidence.
+  - One chain for everything.
+  example: 'Chain A (failure). Why did requests fail? Pool in-use 60 of 60 (FIG-2A). Why exhausted? CHG-88213
+    raised concurrency 50 to 200 against 60 connections. Why could it be raised alone? The two settings
+    are tuned independently. Why not caught? Not load-tested. Why not? Change policy classes config-only
+    changes as low risk. RC-A: change policy treats capacity-affecting configuration as low risk.'
+  interview_prompt: For each channel of inquiry, state the problem as an observed fact, then ask why until
+    the answer is a process, design or tooling gap. Give the evidence for each answer.
+  questions:
+  - id: Q-010
+    rule: PIR-CHAIN-KINDS
+    severity: error
+    blocking: true
+    path: $.five_whys
+    finding: no Five Whys chain of kind 'detection'; the deck asks for separate chains that follow the
+      failure, the detection gap and the slow fix
+    ask: No chain follows this line of inquiry. What is the observed fact it starts from, and why did
+      it happen?
+    answer_shape: A chain of that kind with at least three evidenced whys and a root cause.
+    applies_to: $.five_whys
+  - id: Q-011
+    rule: PIR-CHAIN-KINDS
+    severity: error
+    blocking: true
+    path: $.five_whys
+    finding: no Five Whys chain of kind 'resolution'; the deck asks for separate chains that follow the
+      failure, the detection gap and the slow fix
+    ask: No chain follows this line of inquiry. What is the observed fact it starts from, and why did
+      it happen?
+    answer_shape: A chain of that kind with at least three evidenced whys and a root cause.
+    applies_to: $.five_whys
+  - id: Q-012
+    rule: PIR-WHY-DEPTH
+    severity: error
+    blocking: true
+    path: $.five_whys[0].whys
+    finding: RC-A has 2 why(s); fewer than 3 has not reached a process cause
+    ask: This chain stops before it reaches a process cause. Why did the last answer happen?
+    answer_shape: Further whys, each with evidence, until the cause would hold regardless of who was on
+      shift.
+    applies_to: $.five_whys[0].whys
+- key: corrective_actions
+  title: Corrective actions
+  template_section: '8'
+  writing_order: 7
+  expectation: 'High-level solutions that follow from the lessons, each tied to the lesson it addresses
+    and each decomposed into action items. For every lesson ask the halving questions: what would halve
+    the time to detect (health metrics, alarms)? the time to know (diagnostic metrics, triage tools)?
+    the time to remediate (recovery tools, automation, automated rollback for deployment-related incidents)?
+    Then ask what prevents recurrence altogether.'
+  common_mistakes:
+  - Corrective actions with no action items (they never happen).
+  - Only prevention and nothing for detection or recovery.
+  - Actions scoped to this team when the gap is shared.
+  example: 'CA-2 (LL-2, halves TTD): alert on the order-submit success SLO using multi-window burn rate,
+    so a real 11% failure pages within 2 minutes without adding noise. Action items AI-3, AI-4.'
+  interview_prompt: 'For each lesson: what will we change? Which of time to detect, time to know, time
+    to remediate, or prevention does it improve?'
+  questions:
+  - id: Q-013
+    rule: PIR-CA-NO-HALVING
+    severity: warning
+    blocking: false
+    path: $.corrective_actions
+    finding: no corrective action improves time to detect, time to know or time to remediate; the deck
+      asks what would halve each
+    ask: None of the corrective actions improves time to detect, time to know or time to remediate. What
+      would halve each of them?
+    answer_shape: At least one corrective action with improves set to ttd, ttk or ttr, or the reason none
+      applies, recorded in the ledger.
+    applies_to: $.corrective_actions
+- key: action_items
+  title: Action items
+  template_section: '9'
+  writing_order: 8
+  expectation: 'Individual tasks that someone can do and someone else can verify as done, each traced
+    to a corrective action, with an owner (a person or team who has agreed to it), a due date that is
+    reasonable for the work rather than driven by the roadmap, a status, and a sentence on how it helps
+    prevent recurrence. Be bold: if another team or a shared tool is the right place for the fix, say
+    so and engage them. Never assign an action to someone who has not agreed. Five well-chosen items beat
+    twenty.'
+  common_mistakes:
+  - '"Investigate" or "Consider" items with no end state.'
+  - Owners who were not asked.
+  - Due dates of "Q4".
+  - Items that address the symptom but would not stop the next occurrence.
+  example: 'AI-3 (CA-2): implement a multi-window burn-rate alert on the order-submit success SLO, paging
+    the Order Capture on-call. Owner: Order Capture SRE champion (agreed). Due 2026-10-03. Halves TTD:
+    an 11% failure pages within about 2 minutes.'
+  interview_prompt: 'For each corrective action: what are the concrete, verifiable tasks, who has agreed
+    to own each, by when, and how does each prevent recurrence?'
+  questions:
+  - id: Q-014
+    rule: PIR-AI-VAGUE
+    severity: error
+    blocking: true
+    path: $.action_items[0].statement
+    finding: AI-1 opens with 'investigate', which has no done state; name the output, where it lands and
+      the decision it feeds
+    ask: This action item has no done state. What will exist or be true when it is complete?
+    answer_shape: A statement someone other than the owner could verify as done.
+    applies_to: $.action_items[0].statement
+  - id: Q-015
+    rule: PIR-AI-NOT-AGREED
+    severity: warning
+    blocking: false
+    path: $.action_items[0].owner_agreed
+    finding: AI-1's owner has not agreed to it; never blindly assign action items (blocking from GO review)
+    ask: Has the owner agreed to this action item? If not, who will ask them, and by when?
+    answer_shape: owner_agreed set true once confirmed with the owner. Never assign an action to someone
+      who has not agreed.
+    applies_to: $.action_items[0].owner_agreed
+- key: summary
+  title: Summary
+  template_section: '1'
+  writing_order: 9
+  expectation: 'A single paragraph a reader with no context can understand in under a minute. It names
+    the application, the customer-facing metric that moved, when, what happened in rough sequence, and
+    the customer impact in numbers. It is written last, after every other section, because it summarises
+    them. It contains no new facts that are not in the body. Pattern: <Application> experienced <metric>
+    at <date time>. <What happened, rough timeline>. <Customer impact>.'
+  common_mistakes:
+  - Writing it first and never updating it.
+  - Describing the fix without the impact.
+  - Infrastructure language ("pods restarted") instead of customer language ("orders failed").
+  - Vague quantities ("some customers", "a short period").
+  example: Order Capture API experienced an 11% HTTP 5xx error rate on order submissions from 09:12 to
+    10:26 AEST on 3 September 2026. Change CHG-88213, deployed at 09:04, raised the service's downstream
+    concurrency limit from 50 to 200 without raising the database connection pool (fixed at 60), and the
+    pool was exhausted under normal Wednesday-morning load. An alert fired at 09:27, pool exhaustion was
+    confirmed as the cause at 10:05, and a rollback restored normal error rates at 10:26. Approximately
+    4,200 order submissions from around 3,100 customers failed during the window and 612 queued orders
+    were delivered up to 40 minutes late. No orders were lost or duplicated.
+  interview_prompt: Now that every other section is written, summarise it in one paragraph following the
+    pattern. Name the service, the metric, the date and time, the sequence, and the impact in numbers.
+  questions:
+  - id: Q-016
+    rule: PIR-SUMMARY-SERVICE
+    severity: error
+    blocking: true
+    path: $.summary
+    finding: summary does not name the primary service 'Order Capture API'; the pattern starts '<Application>
+      experienced <metric>'
+    ask: The summary does not name the primary service. Rewrite the opening sentence as "<Application>
+      experienced <metric> at <date time>".
+    answer_shape: One paragraph whose first sentence starts with the primary service's name.
+    applies_to: $.summary
+  - id: Q-017
+    rule: PIR-SUMMARY-NUMBER
+    severity: error
+    blocking: true
+    path: $.summary
+    finding: summary carries no figure (digits in an id, a date or a time do not count); state the metric
+      and the customer impact in figures
+    ask: The summary carries no numbers. What value did the customer-facing metric reach, and how many
+      customers, orders or requests were affected?
+    answer_shape: The metric with its value and the impact counts, as figures, in the paragraph.
+    applies_to: $.summary
+  - id: Q-018
+    rule: PIR-SUMMARY-DATE
+    severity: error
+    blocking: true
+    path: $.summary
+    finding: summary does not say when; the pattern is '<Application> experienced <metric> at <date time>'
+    ask: When did it happen? The summary must say the date and the time.
+    answer_shape: The date and time with timezone in the opening sentence.
+    applies_to: $.summary
+- key: cross_cutting
+  title: Whole document
+  template_section: all
+  writing_order: 99
+  expectation: 'The PIR is blameless throughout: it describes processes, not people, and the blame lexicon
+    (catalogs/blame-lexicon.yaml) is a blocker in any prose field. Identifiers are unique. Every accountable
+    party (PIR owner, action-item owner, question owner) is a person or a team, never a placeholder.'
+  common_mistakes:
+  - '"Human error" in a root cause.'
+  - Two action items with the same id after a copy-paste.
+  - An owner of "TBD".
+  example: Not "the engineer carelessly raised the limit" but "the concurrency limit was raised without
+    a corresponding pool change; nothing documents or enforces the relationship".
+  interview_prompt: Reword any statement that names or judges a person so that it names the process gap
+    instead.
+  questions:
+  - id: Q-019
+    rule: PIR-OWNER-PLACEHOLDER
+    severity: error
+    blocking: true
+    path: $.action_items[0].owner
+    finding: AI-1 has no accountable owner ('TBD'); name the person or team who agreed to it
+    ask: This accountability field names nobody. Which person or team has agreed to own it?
+    answer_shape: A person or team name, confirmed with them, never a placeholder.
+    applies_to: $.action_items[0].owner
+  - id: Q-020
+    rule: PIR-EVIDENCE-PLACEHOLDER
+    severity: error
+    blocking: true
+    path: $.action_items[0].prevents_recurrence
+    finding: '''To be confirmed once the policy change is scoped.'' cites nothing (''To be confirmed'');
+      name the dashboard, log, record or decision it comes from'
+    ask: This field cites nothing yet. Which dashboard, log, record or decision supports it, or what effect
+      does it actually have?
+    answer_shape: A specific source (a dashboard and panel, a log query, a ticket, a decision log entry),
+      or for an effect, the mechanism by which it prevents recurrence.
+    applies_to: $.action_items[0].prevents_recurrence
+response_template:
+  title: Response format for the PIR owner
+  fields:
+  - label: Question ID
+    guidance: The Q-nnn id exactly as shown.
+  - label: Answer
+    guidance: The fact, number, sentence or structure asked for, in the answer shape given.
+  - label: Evidence
+    guidance: 'Where the answer can be checked: a query, panel, ticket, record or document.'
+  - label: Answered by
+    guidance: The person or team who gave the answer, never a role placeholder.
+  - label: Date
+    guidance: When the answer was given, YYYY-MM-DD.
+  - label: Deferred or waived
+    guidance: 'If not answered: deferred to whom and by when, or waived for what reason.'
+after_answers:
+- 'Open a clarification ledger from this interview (tools/open_pir_ledger.py) and record each answer in
+  it: the answer, its evidence, who gave it and when.'
+- Transcribe each answer into the packet and record where it landed in the ledger's applied_to (JSON pointers
+  into the packet).
+- Re-run tools/validate_pir.py on the packet. If findings remain, generate the next round of this interview
+  with --round incremented; otherwise the packet is ready for review.

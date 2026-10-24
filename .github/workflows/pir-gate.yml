@@ -1,0 +1,168 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+name: pir-gate
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pir-gate:
+    # GitHub's hosted Ubuntu runner, unless the repository variable RUNS_ON names others as a JSON
+    # value (for example '["self-hosted", "linux"]'). Nothing here needs root or Docker; Python and
+    # node come from actions/setup-*.
+    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Set up Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+
+      # vsce 4.0.0 declares node >= 22 (tools/vsce/package-lock.json); the runner image's default node
+      # is older, which a container rehearsal of this workflow showed fails packaging.
+      - name: Set up Node
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: '22'
+
+      - name: Install dependencies (hash-locked)
+        run: python -m pip install --require-hashes -r requirements-dev.lock
+
+      - name: Lint (ruff)
+        run: python -m ruff check tools/ tests/
+
+      - name: Format check (ruff)
+        run: python -m ruff format --check tools/ tests/
+
+      - name: Type check (mypy, tools/; mypy.ini)
+        run: python -m mypy
+
+      - name: Compile tools
+        shell: bash
+        run: python -m py_compile tools/*.py
+
+      - name: Catalogs agree with the schema and the validator
+        run: python tools/validate_catalogs.py
+
+      - name: Good examples validate
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=()
+          for f in examples/good/*.yaml; do
+            case "$f" in *.mutation.yaml) ;; *) files+=("$f");; esac
+          done
+          [ ${#files[@]} -gt 0 ] || { echo "no good examples"; exit 1; }
+          python tools/validate_pir.py "${files[@]}"
+
+      - name: Fixtures prove their rules (both polarities, by rule id)
+        run: python tools/check_fixtures.py
+
+      - name: Every rule has a fixture
+        run: python tools/report_rule_coverage.py
+
+      - name: Ledger examples validate
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=()
+          for f in examples/ledgers/good/*.yaml; do
+            case "$f" in *.mutation.yaml) ;; *) files+=("$f");; esac
+          done
+          [ ${#files[@]} -gt 0 ] || { echo "no ledger examples"; exit 1; }
+          python tools/validate_pir_ledger.py "${files[@]}"
+
+      - name: Interview example is current (generator, catalogs and draft packet agree)
+        run: python tools/generate_pir_interview.py --packet examples/draft/order-capture-draft.yaml --check examples/interviews/order-capture-draft-I01.yaml
+
+      - name: Interview markdown is current
+        run: python tools/render_pir_interview.py examples/interviews/order-capture-draft-I01.yaml --check examples/interviews/order-capture-draft-I01.md
+
+      - name: Open ledger example is current
+        run: python tools/open_pir_ledger.py examples/interviews/order-capture-draft-I01.yaml --check examples/ledgers/good/order-capture-draft-L01-open.yaml
+
+      - name: Review examples validate
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(examples/reviews/good/*.json)
+          [ ${#files[@]} -gt 0 ] || { echo "no review examples"; exit 1; }
+          python tools/validate_pir_review.py "${files[@]}"
+
+      - name: Review scaffold example is current
+        run: python tools/render_pir_review_scaffold.py examples/draft/order-capture-draft.yaml --check examples/scaffolds/order-capture-draft.scaffold.json
+
+      # GitHub runs `shell: bash` as `bash --noprofile --norc -eo pipefail {0}`, so a bare command that
+      # exits non-zero ends the step before `rc=$?` is read. `|| rc=$?` is the -e-safe form.
+      # Exit 2 is a SKIP only when the tool's own last line says SKIP:, so a usage error is never one.
+      - name: Artifact conventions (interviews/, clarifications/, reviews/)
+        shell: bash
+        run: |
+          rc=0
+          out="$(python tools/check_artifact_conventions.py 2>&1)" || rc=$?
+          printf '%s\n' "$out"
+          if [ "$rc" -eq 2 ] && [ "$(printf '%s\n' "$out" | tail -n 1 | cut -c1-5)" = "SKIP:" ]; then
+            echo "::notice title=Artifact conventions skipped::no real artifacts yet (a skip is not a pass)"
+            exit 0
+          fi
+          exit "$rc"
+
+      - name: Template docx renders from the catalogs (outline golden)
+        run: python tools/render_pir_docx.py --check examples/rendered/template.outline.txt
+
+      - name: Committed template docx is current
+        shell: bash
+        run: diff <(python tools/docx_outline.py docs/templates/PIR-Template.docx) examples/rendered/template.outline.txt
+
+      - name: Template markdown golden
+        run: python tools/render_pir_docx.py --format md --check examples/rendered/template.md
+
+      - name: Worked example renders (markdown and docx outline goldens)
+        run: |
+          python tools/render_pir_docx.py --packet examples/good/order-capture-pool-exhaustion.yaml --format md --check examples/rendered/order-capture.md
+          python tools/render_pir_docx.py --packet examples/good/order-capture-pool-exhaustion.yaml --check examples/rendered/order-capture.outline.txt
+
+      - name: VS Code extension bundle verifies and runs the loop from a foreign workspace
+        run: python tools/build_vsix.py --check
+
+      # The runner has node and npm, so packaging is never a SKIP here: exit 2 fails the step. vsce
+      # comes from tools/vsce/package-lock.json via `npm ci --ignore-scripts`.
+      # Nothing is uploaded: packaging on every run is what proves the build, and the packages are
+      # published as release assets.
+      - name: VS Code extension packages (locked vsce)
+        run: python tools/build_vsix.py --package --no-smoke
+
+      - name: Antigravity extension bundle verifies and runs the loop from a foreign workspace
+        run: python tools/build_antigravity.py --check
+
+      - name: Antigravity extension packages (.tar.gz and .zip)
+        run: python tools/build_antigravity.py --package --no-smoke
+
+      - name: Real PIR packets validate
+        shell: bash
+        run: |
+          shopt -s nullglob
+          files=(pirs/*.yaml pirs/*.yml pirs/*.json)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "SKIP: no packets under pirs/ yet (a skip is not a pass; reported so it stays visible)"
+          else
+            python tools/validate_pir.py "${files[@]}"
+          fi
+
+      - name: Test suite
+        run: python -m pytest -q tests/
+
+      - name: Local runner mirrors this workflow
+        run: bash tools/run_local_gates.sh --quiet
+

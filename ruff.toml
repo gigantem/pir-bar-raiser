@@ -1,0 +1,22 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+# Lint/format floor for this repo's load-bearing Python: the validators, generators and tests.
+# The "E" family is deliberately not selected in full because catalog-driven guidance strings run
+# long and must not be re-wrapped.
+include = ["tools/*.py", "tests/*.py"]
+# The version requirements-dev.lock installs, exactly, so local and CI lint cannot differ.
+# tests/test_dependency_locks.py holds the two together.
+required-version = "==0.15.22"
+
+line-length = 110
+target-version = "py312"
+
+[lint]
+# Beyond the defaults: B (bug risk), PTH (pathlib), UP (pyupgrade for 3.12),
+# SIM (simplify) and RUF (ruff's own, including unused noqa). S (bandit) stays off: nearly all of it is
+# pytest's assert, and the remaining subprocess calls are deliberate and argument-listed.
+select = ["E4", "E7", "E9", "F", "W", "I", "B", "PTH", "UP", "SIM", "RUF"]
+
+[lint.per-file-ignores]
+# The text-hygiene tests are about Unicode: an en dash there is the point, not a typo.
+"tests/test_text_hygiene.py" = ["RUF001"]

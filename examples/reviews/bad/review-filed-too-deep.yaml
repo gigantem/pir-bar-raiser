@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Only reviews/<stem>/<file>.json is a review; a deeper path escapes the stem binding."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+as_path: reviews/order-capture/archive/20260912T090000Z-pir-reviewer.json
+expect: [REVIEW-FILING]
+mutations:
+  - {op: add, path: /notes, value: ["filed by hand"]}

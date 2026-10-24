@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A lexicon term typed with a Cyrillic letter that renders as a Latin one."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-BLAME-LANGUAGE]
+mutations:
+  - {"op": "replace", "path": "/five_whys/0/root_cause", "value": "Hum\u0430n error during the change: the limit was raised without the matching pool change."}

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "'Analysis of' is the noun form of a vague verb and has no done state either."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-AI-VAGUE]
+mutations:
+  - {op: replace, path: /action_items/0/statement, value: "Analysis of connection pool sizing across the order services."}

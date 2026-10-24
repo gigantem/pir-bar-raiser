@@ -1,0 +1,81 @@
+{
+  "_scaffold": {
+    "generator": "tools/render_pir_review_scaffold.py",
+    "not_an_attestation": "This document is a SCAFFOLD emitted by tools/render_pir_review_scaffold.py, NOT a review and NOT an attestation. Every field in _scaffold.judgement_fields holds the sentinel ASSESSOR_JUDGEMENT_REQUIRED and must be replaced by a reviewer who actually read the packet. Delete the _scaffold block when the judgements are in. This file deliberately FAILS schemas/pir-review.schema.json until that happens.",
+    "judgement_sentinel": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "judgement_fields": [
+      "status",
+      "summary",
+      "blocker_count",
+      "non_blocker_count",
+      "waiver_count",
+      "findings",
+      "coverage"
+    ],
+    "mechanically_derived_fields": [
+      "subject.kind",
+      "subject.path",
+      "subject.id",
+      "subject.revision",
+      "reviewer",
+      "review_stage",
+      "gate_evidence",
+      "clarification_ledgers"
+    ]
+  },
+  "subject": {
+    "kind": "pir-packet",
+    "path": "examples/draft/order-capture-draft.yaml",
+    "id": "PIR-2026-0412",
+    "revision": "packet-sha256:1c5ec37ab34d2f14b2ba9fea92dd860df208b3de27edd1b45f2e60b182402fc0"
+  },
+  "reviewer": "pir-reviewer",
+  "review_stage": "readiness",
+  "status": "ASSESSOR_JUDGEMENT_REQUIRED",
+  "summary": "ASSESSOR_JUDGEMENT_REQUIRED",
+  "gate_evidence": {
+    "derived_by": "tools/render_pir_review_scaffold.py",
+    "validator_status": "FAIL",
+    "error_count": 16,
+    "warning_count": 4,
+    "rule_ids": [
+      "PIR-AI-NOT-AGREED",
+      "PIR-AI-VAGUE",
+      "PIR-CA-NO-HALVING",
+      "PIR-CHAIN-KINDS",
+      "PIR-CHANNEL-NO-CHAIN",
+      "PIR-EVIDENCE-PLACEHOLDER",
+      "PIR-FIGURE-ANNOTATED",
+      "PIR-FIGURE-BASELINE",
+      "PIR-IMPACT-QUANTIFIED",
+      "PIR-METRIC-AVERAGE",
+      "PIR-MISSED-AREAS",
+      "PIR-OWNER-PLACEHOLDER",
+      "PIR-SUMMARY-DATE",
+      "PIR-SUMMARY-NUMBER",
+      "PIR-SUMMARY-SERVICE",
+      "PIR-TIMELINE-NO-DIAGNOSIS",
+      "PIR-TIMINGS-DECLARED",
+      "PIR-WHY-DEPTH"
+    ]
+  },
+  "clarification_ledgers": [],
+  "blocker_count": "ASSESSOR_JUDGEMENT_REQUIRED",
+  "non_blocker_count": "ASSESSOR_JUDGEMENT_REQUIRED",
+  "waiver_count": "ASSESSOR_JUDGEMENT_REQUIRED",
+  "findings": "ASSESSOR_JUDGEMENT_REQUIRED",
+  "coverage": {
+    "document_control": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "summary": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "timeline": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "metrics": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "customer_impact": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "response_analysis": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "five_whys": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "lessons": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "corrective_actions": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "action_items": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "review": "ASSESSOR_JUDGEMENT_REQUIRED",
+    "cross_cutting": "ASSESSOR_JUDGEMENT_REQUIRED"
+  }
+}

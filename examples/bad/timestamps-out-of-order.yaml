@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Mitigated before the cause was confirmed contradicts the lifecycle order."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-TIME-ORDER]
+mutations:
+  - {op: replace, path: /document_control/timestamps/mitigated_at, value: "2026-09-03T09:50:00+10:00"}

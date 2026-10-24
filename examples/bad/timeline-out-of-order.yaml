@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A timeline row earlier than the row before it."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-TIMELINE-ORDER]
+mutations:
+  - {op: replace, path: /timeline/4/at, value: "2026-09-03T09:20:00+10:00"}

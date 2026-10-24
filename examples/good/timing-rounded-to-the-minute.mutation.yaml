@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Cause confirmed at 10:05:40: time to remediate is 20 min 20 s, and the declared 21 is honest rounding, not a disagreement."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_clean: true
+mutations:
+  - {op: replace, path: /document_control/timestamps/cause_confirmed_at, value: "2026-09-03T10:05:40+10:00"}

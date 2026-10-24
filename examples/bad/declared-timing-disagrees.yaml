@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A typed time-to-detect that the timestamps do not support."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-TIMINGS-DECLARED]
+mutations:
+  - {op: replace, path: /key_timings/time_to_detect_minutes, value: 30}

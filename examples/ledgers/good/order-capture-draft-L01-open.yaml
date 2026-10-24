@@ -1,0 +1,246 @@
+id: PIR-2026-0412-L01
+scope:
+  packet: examples/draft/order-capture-draft.yaml
+  packet_id: PIR-2026-0412
+  interview: examples/interviews/order-capture-draft-I01.yaml
+  round: 1
+  source_artifacts: []
+status: OPEN
+finding_counts:
+  total: 20
+  open: 20
+  blocking_open: 16
+questions:
+- id: Q-001
+  rule: PIR-TIMINGS-DECLARED
+  section: document_control
+  blocking: true
+  question: The declared timing disagrees with what the lifecycle timestamps give. Which is right, the
+    timestamp or the declared minutes?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-002
+  rule: PIR-TIMELINE-NO-DIAGNOSIS
+  section: timeline
+  blocking: false
+  question: Which hypotheses were considered, when was each proven or rejected, and on what evidence?
+    Rejected hypotheses are where time to know went.
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-003
+  rule: PIR-FIGURE-BASELINE
+  section: metrics
+  blocking: true
+  question: Which figure can be shown against a normal baseline, the same window on a comparable day?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-004
+  rule: PIR-FIGURE-ANNOTATED
+  section: metrics
+  blocking: true
+  question: Which figure can be annotated with impact start, detection, mitigation and resolution?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-005
+  rule: PIR-METRIC-AVERAGE
+  section: metrics
+  blocking: false
+  question: This row reports an average. What is the most granular value available (per minute, per ten
+    seconds, the peak)?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-006
+  rule: PIR-IMPACT-QUANTIFIED
+  section: customer_impact
+  blocking: true
+  question: How many customers were affected, and how was that counted? If it cannot be determined, say
+    why.
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-007
+  rule: PIR-MISSED-AREAS
+  section: response_analysis
+  blocking: true
+  question: 'For this area of the response: what slowed it down or what was missed, and what did it cost
+    in time or impact? If nothing did, say so and why.'
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-008
+  rule: PIR-MISSED-AREAS
+  section: response_analysis
+  blocking: true
+  question: 'For this area of the response: what slowed it down or what was missed, and what did it cost
+    in time or impact? If nothing did, say so and why.'
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-009
+  rule: PIR-CHANNEL-NO-CHAIN
+  section: response_analysis
+  blocking: true
+  question: This channel of inquiry has no Five Whys chain. Starting from the observed fact, why did it
+    happen, and why that, until the answer is a process, design or tooling gap?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-010
+  rule: PIR-CHAIN-KINDS
+  section: five_whys
+  blocking: true
+  question: No chain follows this line of inquiry. What is the observed fact it starts from, and why did
+    it happen?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-011
+  rule: PIR-CHAIN-KINDS
+  section: five_whys
+  blocking: true
+  question: No chain follows this line of inquiry. What is the observed fact it starts from, and why did
+    it happen?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-012
+  rule: PIR-WHY-DEPTH
+  section: five_whys
+  blocking: true
+  question: This chain stops before it reaches a process cause. Why did the last answer happen?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-013
+  rule: PIR-CA-NO-HALVING
+  section: corrective_actions
+  blocking: false
+  question: None of the corrective actions improves time to detect, time to know or time to remediate.
+    What would halve each of them?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-014
+  rule: PIR-AI-VAGUE
+  section: action_items
+  blocking: true
+  question: This action item has no done state. What will exist or be true when it is complete?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-015
+  rule: PIR-AI-NOT-AGREED
+  section: action_items
+  blocking: false
+  question: Has the owner agreed to this action item? If not, who will ask them, and by when?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-016
+  rule: PIR-SUMMARY-SERVICE
+  section: summary
+  blocking: true
+  question: The summary does not name the primary service. Rewrite the opening sentence as "<Application>
+    experienced <metric> at <date time>".
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-017
+  rule: PIR-SUMMARY-NUMBER
+  section: summary
+  blocking: true
+  question: The summary carries no numbers. What value did the customer-facing metric reach, and how many
+    customers, orders or requests were affected?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-018
+  rule: PIR-SUMMARY-DATE
+  section: summary
+  blocking: true
+  question: When did it happen? The summary must say the date and the time.
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-019
+  rule: PIR-OWNER-PLACEHOLDER
+  section: cross_cutting
+  blocking: true
+  question: This accountability field names nobody. Which person or team has agreed to own it?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []
+- id: Q-020
+  rule: PIR-EVIDENCE-PLACEHOLDER
+  section: cross_cutting
+  blocking: true
+  question: This field cites nothing yet. Which dashboard, log, record or decision supports it, or what
+    effect does it actually have?
+  status: open
+  answer: null
+  answered_by: null
+  answered_at: null
+  answer_source: null
+  applied_to: []

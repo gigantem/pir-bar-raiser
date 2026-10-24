@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "In draft, an owner who has not agreed warns."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_warnings: [PIR-AI-NOT-AGREED]
+mutations:
+  - {op: replace, path: /status, value: draft}
+  - {op: replace, path: /action_items/0/owner_agreed, value: false}

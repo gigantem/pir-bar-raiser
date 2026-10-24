@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A question without its rule does not match the ledger contract."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-SCHEMA]
+mutations:
+  - {op: remove, path: /questions/0/rule}

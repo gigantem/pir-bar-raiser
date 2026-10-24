@@ -1,0 +1,92 @@
+{
+  "subject": {
+    "kind": "pir-packet",
+    "path": "examples/draft/order-capture-draft.yaml",
+    "id": "PIR-2026-0412",
+    "revision": "packet-sha256:1c5ec37ab34d2f14b2ba9fea92dd860df208b3de27edd1b45f2e60b182402fc0"
+  },
+  "reviewer": "pir-reviewer",
+  "review_stage": "readiness",
+  "status": "FAIL",
+  "summary": "Not ready for team review. The validator reports 16 blocking gaps across eight sections, and beyond those the one Five Whys chain stops at a configuration fact rather than the process that allowed it, and the single action item would not prevent recurrence. The owner interview generated from this packet is the next step.",
+  "gate_evidence": {
+    "derived_by": "tools/render_pir_review_scaffold.py",
+    "validator_status": "FAIL",
+    "error_count": 16,
+    "warning_count": 4,
+    "rule_ids": [
+      "PIR-AI-NOT-AGREED",
+      "PIR-AI-VAGUE",
+      "PIR-CA-NO-HALVING",
+      "PIR-CHAIN-KINDS",
+      "PIR-CHANNEL-NO-CHAIN",
+      "PIR-EVIDENCE-PLACEHOLDER",
+      "PIR-FIGURE-ANNOTATED",
+      "PIR-FIGURE-BASELINE",
+      "PIR-IMPACT-QUANTIFIED",
+      "PIR-METRIC-AVERAGE",
+      "PIR-MISSED-AREAS",
+      "PIR-OWNER-PLACEHOLDER",
+      "PIR-SUMMARY-DATE",
+      "PIR-SUMMARY-NUMBER",
+      "PIR-SUMMARY-SERVICE",
+      "PIR-TIMELINE-NO-DIAGNOSIS",
+      "PIR-TIMINGS-DECLARED",
+      "PIR-WHY-DEPTH"
+    ]
+  },
+  "clarification_ledgers": [],
+  "blocker_count": 2,
+  "non_blocker_count": 1,
+  "waiver_count": 0,
+  "findings": [
+    {
+      "id": "FIND-001",
+      "severity": "blocker",
+      "category": "root_cause_depth",
+      "section": "five_whys",
+      "target": "RC-A",
+      "evidence": "Root cause: 'The concurrency setting was raised without raising the connection pool.' Two whys, the second ending at the change diff.",
+      "rationale": "That is a description of the change, not of what allowed it. Nothing yet explains why the two settings can be tuned independently or why the change reached production untested, so the lesson would be 'be more careful', which holds for nobody on the next shift.",
+      "required_fix": "Continue the chain until the answer is a process, design or tooling gap: why could concurrency be raised without the pool, why was the interaction not caught before production, and why was it not load-tested.",
+      "clarification_question": "What in the change process let a capacity-affecting configuration change ship without a load test or a canary?",
+      "rule": "PIR-WHY-DEPTH"
+    },
+    {
+      "id": "FIND-002",
+      "severity": "blocker",
+      "category": "action_item",
+      "section": "action_items",
+      "target": "AI-1",
+      "evidence": "'Investigate the change policy for configuration changes.' Owner TBD, not agreed. Prevents recurrence: 'To be confirmed once the policy change is scoped.'",
+      "rationale": "An investigation has no done state and no owner has agreed to it, so nothing will change. The corrective action it serves (reclassify capacity-affecting configuration changes) already names the outcome; the action item should name the first concrete step toward it.",
+      "required_fix": "Replace with a verifiable task (for example, amend the change-risk classification so concurrency, pool, queue and rate-limit parameters are classed performance-impacting), owned by the person who agreed, with a due date.",
+      "rule": "PIR-AI-VAGUE"
+    },
+    {
+      "id": "FIND-003",
+      "severity": "warning",
+      "category": "timeline",
+      "section": "timeline",
+      "target": "$.timeline",
+      "evidence": "No diagnosis rows between the 09:31 war room and the 10:14 rollback decision.",
+      "rationale": "Forty-three minutes are invisible, which is most of the time to know. Without the rejected Catalogue hypothesis the reader cannot see where the time went, and the resolution chain has nothing to start from.",
+      "required_fix": "Add a row for each hypothesis with the evidence that proved or rejected it.",
+      "rule": "PIR-TIMELINE-NO-DIAGNOSIS"
+    }
+  ],
+  "coverage": {
+    "document_control": "The lifecycle instants are complete and in order, but time to detect is declared 15 where the timestamps give 9: it was taken from the alert, not the first customer report.",
+    "summary": "Does not name the service and carries no figure and no date; 'the team will look at' promises no specific change. The gate reports all three, so no separate finding.",
+    "timeline": "The phase anchors are present, but nothing is recorded between the 09:31 war room and the 10:14 rollback decision (FIND-003).",
+    "metrics": "One figure, neither compared with a baseline nor annotated; the table reports an hourly average that hides the 11% peak.",
+    "customer_impact": "Not counted ('Some customers'), business effect not yet assessed and no partner contacted; the duration and data integrity are stated.",
+    "response_analysis": "Only the detection gap is recorded. Diagnosis and remediation are missing, and CH-2 has no chain.",
+    "five_whys": "One failure chain of two whys that ends at the change itself rather than the process that allowed it (FIND-001); there is no detection or resolution chain.",
+    "lessons": "LL-1 is specific and honest, but it reaches further than RC-A supports: the chain does not yet reach the change policy the lesson names.",
+    "corrective_actions": "CA-1 names a concrete outcome for LL-1. Nothing addresses detection or diagnosis, which the missing chains would surface.",
+    "action_items": "AI-1 is an investigation with a placeholder owner who has not agreed, and its recurrence effect is unwritten (FIND-002).",
+    "review": "A draft with no review stage or open question recorded yet, which is where a packet stands before team review.",
+    "cross_cutting": "The prose is about the change, the pool and the alert, never a person. The placeholder owner and the unwritten recurrence effect on AI-1 are reported by the gate."
+  }
+}

@@ -1,0 +1,8 @@
+jsonschema>=4.23,<5
+PyYAML>=6.0.2,<7
+ruff>=0.15.9,<0.16
+pytest>=8.4,<9
+python-docx>=1.2,<2
+mypy>=2.4,<2.5
+types-PyYAML>=6.0.12,<7
+types-jsonschema>=4.26,<5

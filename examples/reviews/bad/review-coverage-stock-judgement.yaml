@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "'Looks good.' would be true of any packet; it records no judgement."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+expect: [REVIEW-COVERAGE]
+mutations:
+  - {op: replace, path: /coverage/five_whys, value: "Looks good."}

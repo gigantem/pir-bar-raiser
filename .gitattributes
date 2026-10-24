@@ -1,0 +1,3 @@
+# Line endings are LF everywhere; tests/test_text_hygiene.py fails on a CR in any text file.
+* text=auto eol=lf
+*.docx binary

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "CA-4 has no task behind it."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-CA-NO-AI]
+mutations:
+  - {op: remove, path: /action_items/6}

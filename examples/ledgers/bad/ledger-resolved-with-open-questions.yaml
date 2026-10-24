@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A ledger marked RESOLVED while every question is still open."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-open.yaml
+expect: [LEDGER-STATUS]
+mutations:
+  - {op: replace, path: /status, value: "RESOLVED"}

@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A packet path that resolves nowhere and is not declared external."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-PATH-UNRESOLVED]
+mutations:
+  - {op: replace, path: /scope/packet, value: "examples/good/no-such-packet.yaml"}

@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/pir-review.schema.json",
+  "title": "PIR Reviewer Findings",
+  "description": "One reviewer's findings on one PIR packet at one review stage. The schema owns shape; tools/validate_pir_review.py owns the semantics: the counts equal the findings, the status follows from them (FAIL exactly when an unwaived blocker exists), the subject resolves and names the packet it points at, the gate evidence matches a fresh validator run when the packet is unchanged, a review cannot PASS a packet the gate rejects, a passing review names a packet whose current bytes it reviewed, every template section carries a coverage judgement, no judgement sentinel remains, and the reviewer's prose is blameless. additionalProperties is false everywhere so a scaffold (which carries a _scaffold block) is structurally inadmissible as a review.",
+  "type": "object",
+  "required": [
+    "subject",
+    "reviewer",
+    "review_stage",
+    "status",
+    "summary",
+    "gate_evidence",
+    "clarification_ledgers",
+    "blocker_count",
+    "non_blocker_count",
+    "waiver_count",
+    "findings",
+    "coverage"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "subject": {
+      "type": "object",
+      "required": ["kind", "path", "id", "revision"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": { "type": "string", "const": "pir-packet" },
+        "path": {
+          "type": "string",
+          "minLength": 3,
+          "description": "Repo-relative path of the packet reviewed; 'external:' prefix when it deliberately lives elsewhere."
+        },
+        "id": { "type": ["string", "null"], "pattern": "^PIR-[0-9]{4}-[0-9]{3,4}$" },
+        "revision": {
+          "type": ["string", "null"],
+          "pattern": "^packet-sha256:[0-9a-f]{64}$",
+          "description": "sha256 over the packet's raw bytes AS REVIEWED, or null when not observed. Never a guess: the validator compares it with the packet on disk and only trusts gate_evidence when they agree."
+        }
+      }
+    },
+    "reviewer": {
+      "type": "string",
+      "minLength": 3,
+      "description": "The persona or person who formed the judgements, e.g. pir-reviewer, or a named reviewer for a human review."
+    },
+    "review_stage": {
+      "type": "string",
+      "enum": ["readiness", "team", "go", "exec_go"],
+      "description": "readiness: the agent's pre-review before the PIR goes to people. team, go, exec_go: the deck's review sequence."
+    },
+    "status": { "type": "string", "enum": ["PASS", "FAIL", "PASS_WITH_WAIVERS"] },
+    "summary": { "type": "string", "minLength": 20 },
+    "gate_evidence": {
+      "type": "object",
+      "description": "What tools/validate_pir.py said about the subject at the recorded revision. Mechanical: copied from the scaffold, never typed. A review may not PASS while the validator FAILs.",
+      "required": ["derived_by", "validator_status", "error_count", "warning_count", "rule_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "derived_by": { "type": "string", "const": "tools/render_pir_review_scaffold.py" },
+        "validator_status": { "type": "string", "enum": ["PASS", "FAIL"] },
+        "error_count": { "type": "integer", "minimum": 0 },
+        "warning_count": { "type": "integer", "minimum": 0 },
+        "rule_ids": {
+          "type": "array",
+          "items": { "type": "string", "pattern": "^PIR-[A-Z0-9-]+$" }
+        }
+      }
+    },
+    "clarification_ledgers": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 3 },
+      "description": "Repo-relative ledger paths the review relied on; resolved by the validator, 'external:' allowed."
+    },
+    "blocker_count": { "type": "integer", "minimum": 0 },
+    "non_blocker_count": { "type": "integer", "minimum": 0 },
+    "waiver_count": { "type": "integer", "minimum": 0 },
+    "findings": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/finding" }
+    },
+    "coverage": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "type": "string", "minLength": 10 },
+      "description": "The record that the checklist was walked: one entry per template section in catalogs/pir-section-expectations.yaml (document_control through cross_cutting), each the reviewer's one-line judgement of that section after reading it. tools/validate_pir_review.py requires exactly the catalog's sections and rejects a stock non-judgement ('OK', 'Looks good', 'No issues'). A review with no findings still says what was checked."
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "finding": {
+      "type": "object",
+      "required": ["id", "severity", "category", "section", "target", "evidence", "rationale", "required_fix"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^FIND-[0-9]{3}$" },
+        "severity": { "type": "string", "enum": ["blocker", "warning", "info"] },
+        "category": {
+          "type": "string",
+          "enum": [
+            "blameless",
+            "timing",
+            "timeline",
+            "metrics",
+            "customer_impact",
+            "response_analysis",
+            "root_cause_depth",
+            "root_cause_truth",
+            "lesson",
+            "corrective_action",
+            "action_item",
+            "traceability",
+            "evidence",
+            "summary",
+            "review_process"
+          ]
+        },
+        "section": {
+          "type": "string",
+          "minLength": 3,
+          "description": "The template section key from catalogs/pir-section-expectations.yaml (document_control, summary, timeline, ... cross_cutting)."
+        },
+        "target": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The item or path the finding is about: an id such as RC-B or AI-3, or a packet path such as $.customer_impact.how_many."
+        },
+        "evidence": { "type": "string", "minLength": 10, "description": "What the packet says, quoted or closely paraphrased." },
+        "rationale": { "type": "string", "minLength": 10, "description": "Why that falls short of what good looks like." },
+        "required_fix": { "type": "string", "minLength": 10 },
+        "clarification_question": { "type": "string", "minLength": 10 },
+        "rule": {
+          "type": "string",
+          "pattern": "^PIR-[A-Z0-9-]+$",
+          "description": "The validator rule this finding relates to, when one exists. Most reviewer findings have none: they are the judgements the validator cannot make."
+        },
+        "waiver": {
+          "type": "object",
+          "required": ["by", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "by": { "type": "string", "minLength": 2 },
+            "reason": { "type": "string", "minLength": 10 }
+          },
+          "description": "Present when the reviewer accepts this finding as residual risk. A waived blocker does not block; the review becomes PASS_WITH_WAIVERS."
+        }
+      }
+    }
+  }
+}

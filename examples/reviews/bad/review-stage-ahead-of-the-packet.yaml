@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A GO-stage review of a packet still in draft: the review claims a stage the PIR has not reached."
+kind: review
+base: examples/reviews/good/order-capture-draft-readiness.json
+expect: [REVIEW-STAGE-AHEAD]
+expect_exactly: true
+mutations:
+  - {op: replace, path: /review_stage, value: go}

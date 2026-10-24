@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A due date in 2099 is a placeholder, not tracking."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-AI-DUE-FAR]
+mutations:
+  - {op: replace, path: /action_items/0/due_date, value: "2099-12-31"}

@@ -1,0 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Every lifecycle instant the same: every timing is 0 and no time rule can see the incident."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-TIMESTAMPS-COLLAPSED]
+mutations:
+  - {op: replace, path: /document_control/timestamps/detected_at, value: "2026-09-03T09:12:00+10:00"}
+  - {op: replace, path: /document_control/timestamps/cause_confirmed_at, value: "2026-09-03T09:12:00+10:00"}
+  - {op: replace, path: /document_control/timestamps/mitigated_at, value: "2026-09-03T09:12:00+10:00"}
+  - {op: replace, path: /document_control/timestamps/resolved_at, value: "2026-09-03T09:12:00+10:00"}

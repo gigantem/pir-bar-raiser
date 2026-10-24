@@ -1,0 +1,4 @@
+{
+  "name": "pir-assessor",
+  "description": "Assess, interview, review and render Post-Incident Reviews (PIRs) in Google Antigravity: the pir-assessor, pir-interviewer and pir-reviewer agents, the assess-pir, interview-pir and review-pir workflow skills, and the pir-assessment skill with gate tools, schemas, catalogs and templates bundled."
+}

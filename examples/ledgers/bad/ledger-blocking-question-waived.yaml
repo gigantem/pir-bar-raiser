@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A blocking question waived: recorded, but the packet still fails the gate."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect_warnings: [LEDGER-BLOCKING-WAIVED]
+mutations:
+  - {op: replace, path: /questions/0/status, value: "waived"}
+  - {op: add, path: /questions/0/waiver, value: {reason: "The owner accepts the declared value as a documented approximation."}}

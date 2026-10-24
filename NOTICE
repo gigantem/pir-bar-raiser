@@ -1,0 +1,13 @@
+PIR Assessor
+Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+
+Licensed under GPL-3.0-or-later; full text in LICENSE. Every source file carries an
+SPDX-License-Identifier. Where a format admits no comments (JSON), the licence is this one.
+
+The design, the gate discipline (stable rule ids, both-polarity fixtures asserted by message,
+a local runner held to CI, empty corpora reported rather than passed) and several tools are
+adapted from agentic-gatekeeper, a project by the same author (not public; GPL-3.0-or-later).
+
+The reference guidance is the deck "What Good Looks Like for Post-Incident Reviews"
+(Mike Gigante, 2025). The worked example under examples/ is fictional: the organisation,
+services, numbers and people are invented.

@@ -1,0 +1,347 @@
+[-] Post-Incident Review (PIR)
+[-] INC-2026-0412  Order Capture API: 11% of order submissions failed after a configuration change exhausted the database connection pool
+[-] Blameless review. Processes, not people.
+[Heading1] Document control
+[-] Incident ID
+[-] INC-2026-0412
+[-] Incident title
+[-] Order Capture API: 11% of order submissions failed after a configuration change exhausted the database connection pool
+[-] Severity
+[-] Sev-1
+[-] Service / application
+[-] Order Capture API, Order Queue
+[-] Impact start
+[-] 2026-09-03 09:12 +10:00
+[-] Detected at
+[-] 2026-09-03 09:21 +10:00
+[-] Cause confirmed at
+[-] 2026-09-03 10:05 +10:00
+[-] Mitigated at
+[-] 2026-09-03 10:26 +10:00
+[-] Resolved at
+[-] 2026-09-03 10:47 +10:00
+[-] Customer impact duration
+[-] 74 min
+[-] PIR owner (Product Owner)
+[-] Order Capture product owner (A. Example)
+[-] Incident Manager
+[-] Major Incident Manager, Service Operations
+[-] Contributors / SMEs
+[-] Order Capture engineering team, Database platform team, Observability COE, Customer care duty lead
+[-] Repeat incident
+[-] No
+[-] PIR status
+[-] In GO review
+[-] Draft due
+[-] 2026-09-08
+[-] Publish due
+[-] 2026-09-17
+[-] Related records
+[-] CHG-88213, CS-55120, A-2231
+[-] Classification
+[-] General
+[Heading1] Contents
+[Heading1] 1. Summary
+[-] Order Capture API experienced an 11% HTTP 5xx error rate on order submissions from 09:12 to 10:26 AEST on 3 September 2026. Change CHG-88213, deployed at 09:04, raised the service's downstream concurrency limit from 50 to 200 without raising the database connection pool (fixed at 60), and the pool was exhausted under normal Wednesday-morning load. Customer care reported failures at 09:21, an alert fired at 09:27, pool exhaustion was confirmed as the cause at 10:05, and a rollback restored normal error rates at 10:26. Approximately 4,200 order submissions from around 3,100 customers failed during the window and 612 queued orders were delivered up to 40 minutes late. No orders were lost or duplicated. The rollback is a permanent fix for this change; the underlying gaps are addressed by CA-1 to CA-4.
+[Heading2] 1.1 Key timings
+[-] Measure
+[-] Definition
+[-] Value
+[-] Time to detect (TTD)
+[-] Impact start to detected at
+[-] 9 min
+[-] Time to know (TTK)
+[-] Detected at to cause confirmed with evidence
+[-] 44 min
+[-] Time to remediate (TTR)
+[-] Cause confirmed to mitigated at
+[-] 21 min
+[-] Customer impact duration
+[-] Impact start to mitigated at
+[-] 74 min
+[-] Time to resolve
+[-] Impact start to resolved at
+[-] 95 min
+[Heading1] 2. Timeline
+[-] Time (TZ)
+[-] Event (what happened, what was observed or decided)
+[-] Evidence / source
+[-] Phase
+[-] 2026-09-03 09:04 +10:00
+[-] CHG-88213 (config v2.14.0) deployed to Order Capture API production: downstream concurrency 50 to 200.
+[-] deploy log
+[-] Precursor
+[-] 09:12
+[-] 5xx rate on POST /orders rises from 0.2% to 8%, climbing to 11% by 09:20.
+[-] FIG-1
+[-] Impact start
+[-] 09:21
+[-] Customer care reports 'order submit fails' in the support channel (first human signal; no alert yet).
+[-] ticket CS-55120
+[-] Detection
+[-] 09:27
+[-] Alert 'OrderCapture 5xx > 5% for 10 min' pages the on-call engineer.
+[-] alert A-2231
+[-] Detection
+[-] 09:31
+[-] Sev-1 declared; Incident Manager engaged; war room opened.
+[-] decision log
+[-] Response
+[-] 09:45
+[-] Hypothesis 1 'Catalogue service degraded' rejected: catalogue p99 latency normal for the whole window.
+[-] FIG-2 panel B
+[-] Diagnosis
+[-] 10:05
+[-] Hypothesis 2 'DB pool exhausted after config change' proven: pool in-use at 60/60 from 09:11; timing matches CHG-88213.
+[-] ad-hoc query, FIG-2 panel A
+[-] Diagnosis
+[-] 10:14
+[-] Incident Manager decision: roll back to v2.13.4 rather than raise pool size, as the pool limit is untested above 60.
+[-] decision log
+[-] Remediation
+[-] 10:26
+[-] Rollback complete; 5xx rate below 1%.
+[-] FIG-1
+[-] Mitigated
+[-] 10:47
+[-] Queued orders (612) delivered; error rate at baseline; Sev-1 resolved.
+[-] order queue depth panel
+[-] Resolved
+[-] 11:10
+[-] Final executive and customer-care update sent.
+[-] comms record
+[-] Comms
+[Heading1] 3. Metrics and graphs
+[Heading2] 3.1 Figures
+[-] Figure 1 (FIG-1). POST /orders HTTP 5xx rate, per minute, 3 Sep 2026 08:30 to 11:30 AEST (solid) overlaid with 27 Aug 2026 same window (dotted). Annotations at 09:04 deploy, 09:12 impact start, 09:27 alert, 10:26 rollback complete. Source: Grafana dashboard 'Order Capture / Overview', panel 3. Window: 2026-09-03 08:30 to 11:30 AEST. Annotated, baseline compared.
+[-] Figure 2 (FIG-2). Panel A: database connection pool in-use vs maximum (60), per 10 s, same window; flat at 60 from 09:11 to 10:25. Panel B: Catalogue service p99 latency, same window, within normal band throughout. Source: ad-hoc Prometheus query saved as PIR-0412-pool; Catalogue dashboard panel 7. Window: 2026-09-03 08:30 to 11:30 AEST. Annotated, baseline compared.
+[Heading2] 3.2 Metric summary
+[-] Metric
+[-] What it tells us
+[-] Normal baseline
+[-] During incident
+[-] Source / link
+[-] POST /orders 5xx rate (per minute)
+[-] Customer-facing failure
+[-] 0.2%
+[-] Peak 11%
+[-] FIG-1
+[-] Order submissions succeeded (per minute)
+[-] Business outcome
+[-] 540 plus or minus 60 at this hour
+[-] 470 to 490, with 60 to 70 failures per minute
+[-] business metrics warehouse, query saved as PIR-0412-orders
+[-] DB connection pool in-use (of 60)
+[-] Diagnostic saturation signal
+[-] 18 to 25
+[-] 60 (saturated) from 09:11 to 10:25
+[-] FIG-2 panel A
+[Heading1] 4. Customer impact
+[-] Question
+[-] Answer
+[-] Who was affected (segments, regions, channels, partners)?
+[-] Consumer and small-business customers submitting orders through the web and app channels in all regions.
+[-] What did they experience?
+[-] 'Something went wrong, please try again' on submit; retries also failed in most cases while the pool was exhausted.
+[-] How many were affected? How do we know?
+[-] 4,180 failed submissions from 3,090 distinct customer IDs between 09:12 and 10:26, about 11% of submissions in the window. Counted by: Log query PIR-0412-failed over the gateway access logs, de-duplicated by customer ID.
+[-] For how long?
+[-] 74 minutes of failed submissions (09:12 to 10:26), plus 21 minutes of delayed delivery for queued orders (to 10:47).
+[-] Business metrics affected
+[-] An estimated 1,900 orders were not re-attempted by 17:00 compared with the normal re-attempt rate, roughly $86k of order value at risk; 612 orders delivered 20 to 40 minutes late; support contacts 3.4 times the hourly norm between 09:30 and 11:00.
+[-] Commitments breached (SLA, SLO, regulatory)?
+[-] Monthly order-submit availability SLO (99.9%) consumed 58% of its error budget in one event. No contractual SLA breached.
+[-] Customers / partners contacted?
+[-] Two enterprise partners contacted by the account team at 11:30 on 3 Sep; both confirmed impact matched our estimate.
+[-] What was not affected?
+[-] Retail-store channel (separate order path); order status lookups; payments.
+[-] Any data loss, duplication or corruption?
+[-] No orders lost or duplicated, verified by reconciling the order queue against the orders table at 11:05.
+[Heading1] 5. Incident response and post-incident analysis
+[Heading2] 5.1 What went well
+[ListBullet] Once pool exhaustion was confirmed, the decision to roll back rather than tune was made in 9 minutes and executed in 12, because the rollback runbook was current and had been rehearsed in August.
+[ListBullet] Customer care escalated the first reports to the on-call channel within 6 minutes of noticing them.
+[Heading2] 5.2 What we missed
+[-] Area
+[-] What we missed or what slowed us down
+[-] Effect on the incident
+[-] Detection (time to detect)
+[-] The only alert on this path requires 5% errors sustained for 10 minutes, so it fired 15 minutes after impact start and 6 minutes after customer care had already noticed.
+[-] The first 9 minutes of the 74-minute impact window had no signal at all, and the next 6 relied on customer care rather than monitoring.
+[-] Diagnosis (time to know)
+[-] Pool saturation is not on the service dashboard; it was found by an ad-hoc query after the first hypothesis was rejected.
+[-] Around 25 of the 44 minutes of time to know.
+[-] Remediation (time to remediate)
+[-] Rollback required a manual decision and a manual pipeline trigger; no automated rollback exists for this service.
+[-] About 12 of the 21 minutes of time to remediate were mechanical steps a deploy guard could have taken.
+[-] Prevention
+[-] CHG-88213 was classed as 'config only, low risk' and so required neither a load test nor a canary stage.
+[-] The interaction between concurrency and pool size was never exercised before production.
+[Heading2] 5.3 Channels of inquiry
+[ListNumber] CH-1: Why the configuration change exhausted the connection pool.
+[ListNumber] CH-2: Why the alert took 15 minutes and arrived after a customer-care report.
+[ListNumber] CH-3: Why diagnosis took 44 minutes from first report to confirmed cause.
+[Heading1] 6. Five Whys (root cause analysis)
+[Heading2] 6.1 Chain A: the failure (CH-1)
+[-] Problem statement: POST /orders returned 5xx for 11% of requests from 09:12.
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1: Why did requests fail?
+[-] Requests timed out waiting for a database connection; pool in-use was 60 of 60 from 09:11. Evidence: FIG-2 panel A
+[-] Why 2: Why was the pool exhausted?
+[-] CHG-88213 raised downstream concurrency from 50 to 200, so up to 200 in-flight requests competed for 60 connections. Evidence: CHG-88213 diff; deploy log
+[-] Why 3: Why could concurrency be raised without the pool?
+[-] The two settings are tuned independently; nothing documents or enforces that pool size must scale with concurrency. Evidence: service configuration reference, no cross-reference between the two keys
+[-] Why 4: Why was the interaction not caught before production?
+[-] The change was not load-tested, so the interaction was never exercised. Evidence: CHG-88213 record shows no load-test stage
+[-] Why 5: Why was it not load-tested?
+[-] Our change policy classes configuration-only changes as low risk and exempts them from pre-production load testing and canary release. Evidence: change policy section 4.2
+[-] Root cause RC-A: Change policy treats capacity-affecting configuration as low risk, so such changes reach production without load testing or a canary.
+[Heading2] 6.2 Chain B: the detection gap (CH-2)
+[-] Problem statement: The first alert fired 15 minutes after impact start, after a customer-care report.
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1: Why did the alert take 15 minutes?
+[-] The alert requires 5% errors sustained for 10 minutes. Evidence: alert A-2231 definition
+[-] Why 2: Why is the window 10 minutes?
+[-] It was widened from 2 to 10 minutes in May 2026 after false pages during a batch job. Evidence: alert change history, May 2026
+[-] Why 3: Why did it need de-tuning?
+[-] The alert is on an infrastructure symptom (5xx) rather than the customer outcome (order submissions succeeding), so it has to be de-tuned to avoid noise. Evidence: alerting review notes
+[-] Why 4: Why is there no customer-outcome alert?
+[-] No SLO-based alert on order-submit success exists; the service has an SLO but it is reported monthly, not alerted on. Evidence: SLO register entry for Order Capture
+[-] Root cause RC-B: Alerting is based on infrastructure symptoms with de-tuned thresholds; there is no burn-rate alert on the customer-facing SLO.
+[Heading2] 6.3 Chain C: the slow resolution (CH-3)
+[-] Problem statement: It took 44 minutes from the first report to confirmed cause, 38 of them after the alert.
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1: Why did diagnosis take 44 minutes?
+[-] The first 18 minutes were spent on the Catalogue hypothesis, and pool saturation was only found by an ad-hoc query afterwards. Evidence: decision log 09:31 to 10:05
+[-] Why 2: Why was pool saturation not seen sooner?
+[-] Pool saturation is not on the service's dashboard, so responders did not see it. Evidence: dashboard 'Order Capture / Overview' panel list
+[-] Why 3: Why is it not on the dashboard?
+[-] The dashboard was generated from the standard service template, which has latency, errors and traffic panels but no saturation panels. Evidence: dashboard template v3 definition
+[-] Why 4: Why does the template omit saturation?
+[-] The template was never reviewed against the four golden signals guidance when it was adopted. Evidence: template adoption record, no review noted
+[-] Root cause RC-C: The standard service dashboard template omits saturation signals, so responders lack the diagnostic metric for a whole class of failures.
+[Heading1] 7. Lessons learned
+[-] ID
+[-] Lesson (what should have happened differently)
+[-] From root cause
+[-] Corrective action(s)
+[-] LL-1
+[-] We treated a change that quadrupled concurrency as low risk because it did not touch code. Capacity parameters are as risky as code and we should test and canary them the same way.
+[-] RC-A
+[-] CA-1, CA-4
+[-] LL-2
+[-] We found out from customer care, not from monitoring. We alert on what the infrastructure does, not on whether customers can place orders, and we have de-tuned those alerts to the point that they lag real impact by a quarter of an hour.
+[-] RC-B
+[-] CA-2
+[-] LL-3
+[-] We spent 25 minutes looking for a metric that should have been on the first screen a responder opens. Our dashboard template does not show saturation, and we never checked it against our own guidance.
+[-] RC-C
+[-] CA-3
+[Heading1] 8. Corrective actions
+[-] ID
+[-] Corrective action (what we will change)
+[-] Addresses
+[-] Primarily improves
+[-] Action items
+[-] CA-1
+[-] Reclassify capacity-affecting configuration changes as performance-impacting so they require a load test and a canary stage.
+[-] LL-1
+[-] Prevention
+[-] AI-1, AI-2
+[-] CA-2
+[-] Alert on the order-submit success SLO using multi-window burn rate, so a real 11% failure pages within 2 minutes without adding noise.
+[-] LL-2
+[-] TTD
+[-] AI-3, AI-4
+[-] CA-3
+[-] Add saturation panels (connection pools, thread pools, queue depth) to the standard dashboard template and roll out to all services that use it.
+[-] LL-3
+[-] TTK
+[-] AI-5, AI-6
+[-] CA-4
+[-] Automatic rollback of a deployment when SLO burn rate crosses the fast-burn threshold within 30 minutes of the deploy.
+[-] LL-1
+[-] TTR
+[-] AI-7
+[Heading1] 9. Action items
+[-] ID
+[-] Action item (specific, verifiable)
+[-] CA
+[-] Owner (agreed)
+[-] Due date
+[-] Status
+[-] How it prevents recurrence
+[-] AI-1
+[-] Amend the change-risk classification in the change policy so that any change to concurrency, pool, queue or rate-limit parameters is classed performance-impacting.
+[-] CA-1
+[-] Change Management practice lead
+[-] 2026-10-10
+[-] open
+[-] Routes capacity changes to load test and canary, so the untested interaction cannot reach production unexercised.
+[-] AI-2
+[-] Add a load-test stage to the Order Capture API pipeline that runs the standard Wednesday-morning traffic profile against any performance-impacting change.
+[-] CA-1
+[-] Order Capture team lead
+[-] 2026-10-24
+[-] open
+[-] Exercises concurrency and pool settings together under representative load before release.
+[-] AI-3
+[-] Implement a multi-window burn-rate alert (1 h / 5 min fast burn, 6 h / 30 min slow burn) on the order-submit success SLO, paging the Order Capture on-call.
+[-] CA-2
+[-] Order Capture SRE champion
+[-] 2026-10-03
+[-] in progress
+[-] Halves time to detect: an 11% failure pages within about 2 minutes instead of 15.
+[-] AI-4
+[-] Retire the '5xx > 5% for 10 min' alert once AI-3 has run for two weeks without false pages.
+[-] CA-2
+[-] Order Capture SRE champion
+[-] 2026-10-17
+[-] open
+[-] Removes the de-tuned symptom alert so responders are not paged twice for one event and the SLO alert is the one that is maintained.
+[-] AI-5
+[-] Add saturation panels (DB pool in-use vs max, HTTP client pool, worker queue depth) to the standard service dashboard template.
+[-] CA-3
+[-] Observability COE
+[-] 2026-10-17
+[-] open
+[-] Halves time to know for pool and queue exhaustion across every service built from the template.
+[-] AI-6
+[-] Regenerate dashboards for the 14 services using the template and confirm each one shows its pools.
+[-] CA-3
+[-] Observability COE with each service team
+[-] 2026-11-07
+[-] open
+[-] Makes the diagnostic metric visible where responders look, for the other 13 services as well as this one.
+[-] AI-7
+[-] Enable deploy-guard auto-rollback for Order Capture API, triggered by the AI-3 fast-burn alert within 30 minutes of a deploy.
+[-] CA-4
+[-] Order Capture team lead
+[-] 2026-11-14
+[-] open
+[-] Halves time to remediate for deployment-caused incidents by removing the human decision loop.
+[Heading1] 10. Review and sign-off
+[-] Review stage
+[-] Reviewer (role)
+[-] Date
+[-] Outcome and material changes requested
+[-] Team review
+[-] Order Capture engineering team
+[-] 2026-09-08
+[-] Asked for the de-duplicated customer count (added to customer impact) and for RC-C to go one why deeper (added why 4 and revised the root cause).
+[-] GO review
+[-] GO, Digital Channels
+[-] 2026-09-12
+[-] Accepted. Asked whether AI-5 should cover all 14 template users rather than only Order Capture; AI-6 added as a result.
+[Heading2] 10.1 Open questions raised in review
+[-] Question
+[-] Owner
+[-] Answer due
+[-] Answer / resolution
+[-] Q-001: How many of the 1,900 non-re-attempted orders were eventually placed through another channel?
+[-] Order Capture product owner (A. Example)
+[-] 2026-09-19
+[-] open

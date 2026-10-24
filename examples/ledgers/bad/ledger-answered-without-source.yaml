@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An answered question with no record of where the answer came from."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-SETTLED-INCOMPLETE]
+mutations:
+  - {op: replace, path: /questions/0/answer_source, value: null}

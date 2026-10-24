@@ -1,0 +1,376 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/pir-packet.schema.json",
+  "title": "Post-Incident Review Packet",
+  "description": "The structured form of one Post-Incident Review, one key per section of docs/templates/PIR-Template-DRAFT.docx in reading order. The schema owns shape (presence, types, closed vocabularies, identifier formats); tools/validate_pir.py owns meaning (ordering, derivation, traceability, lexicons). Every minLength is paired with a \\S pattern so whitespace cannot satisfy it.",
+  "type": "object",
+  "required": [
+    "id",
+    "status",
+    "document_control",
+    "summary",
+    "timeline",
+    "metrics",
+    "customer_impact",
+    "response_analysis",
+    "five_whys",
+    "lessons",
+    "corrective_actions",
+    "action_items",
+    "review"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^PIR-[0-9]{4}-[0-9]{3,4}$"
+    },
+    "status": {
+      "description": "The PIR lifecycle. 'published' carries extra obligations enforced by the validator (review outcomes recorded, no unanswered review questions, every action item owner agreed).",
+      "type": "string",
+      "enum": ["draft", "in_team_review", "in_go_review", "published"]
+    },
+    "document_control": {
+      "type": "object",
+      "required": [
+        "incident_id",
+        "title",
+        "severity",
+        "services",
+        "timestamps",
+        "pir_owner",
+        "incident_manager",
+        "contributors",
+        "repeat_incident",
+        "draft_due",
+        "publish_due",
+        "related_records",
+        "classification"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "incident_id": { "$ref": "#/$defs/shortText" },
+        "title": { "type": "string", "minLength": 12, "pattern": "\\S" },
+        "severity": { "type": "string", "enum": ["Sev-1", "Sev-2", "Sev-3"] },
+        "services": {
+          "description": "Affected services. The first entry is the primary service and must appear in the summary.",
+          "type": "array",
+          "minItems": 1,
+          "items": { "$ref": "#/$defs/shortText" }
+        },
+        "timestamps": {
+          "description": "The five lifecycle instants. All carry an explicit UTC offset; the validator requires them non-decreasing and derives the key timings from them.",
+          "type": "object",
+          "required": ["impact_start", "detected_at", "cause_confirmed_at", "mitigated_at", "resolved_at"],
+          "additionalProperties": false,
+          "properties": {
+            "impact_start": { "$ref": "#/$defs/timestamp" },
+            "detected_at": {
+              "$ref": "#/$defs/timestamp",
+              "description": "The first signal of any kind that the incident was happening: a monitoring alert, a page, or a customer or staff report, whichever came first. Time to detect is measured from impact start to this instant, so a customer report that beat the alert counts as detection."
+            },
+            "cause_confirmed_at": { "$ref": "#/$defs/timestamp" },
+            "mitigated_at": { "$ref": "#/$defs/timestamp" },
+            "resolved_at": { "$ref": "#/$defs/timestamp" }
+          }
+        },
+        "pir_owner": { "$ref": "#/$defs/accountableParty" },
+        "incident_manager": { "$ref": "#/$defs/roleText" },
+        "contributors": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/shortText" }
+        },
+        "repeat_incident": {
+          "description": "True when a previous incident had the same failure. Requires a prior_actions Five Whys chain.",
+          "type": "boolean"
+        },
+        "draft_due": { "$ref": "#/$defs/date" },
+        "publish_due": { "$ref": "#/$defs/date" },
+        "related_records": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/shortText" }
+        },
+        "classification": { "$ref": "#/$defs/shortText" }
+      }
+    },
+    "key_timings": {
+      "description": "Optional declared timings in whole minutes. When present each must equal the value the validator derives from document_control.timestamps; the renderer derives them when absent. Typing them is allowed so a PIR transcribed from a source document can record what that document claimed and have the claim checked.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "time_to_detect_minutes": { "type": "integer", "minimum": 0 },
+        "time_to_know_minutes": { "type": "integer", "minimum": 0 },
+        "time_to_remediate_minutes": { "type": "integer", "minimum": 0 },
+        "customer_impact_minutes": { "type": "integer", "minimum": 0 },
+        "time_to_resolve_minutes": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "summary": {
+      "description": "Written last. Pattern: <Application> experienced <metric> at <date time>. <What happened, rough timeline>. <Customer impact>.",
+      "type": "string",
+      "minLength": 120,
+      "pattern": "\\S"
+    },
+    "timeline": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["at", "event", "evidence", "phase"],
+        "additionalProperties": false,
+        "properties": {
+          "at": { "$ref": "#/$defs/timestamp" },
+          "event": { "type": "string", "minLength": 12, "pattern": "\\S" },
+          "evidence": { "$ref": "#/$defs/shortText" },
+          "phase": {
+            "type": "string",
+            "enum": ["precursor", "impact_start", "detection", "response", "diagnosis", "remediation", "mitigated", "resolved", "comms"]
+          }
+        }
+      }
+    },
+    "metrics": {
+      "type": "object",
+      "required": ["figures", "summary"],
+      "additionalProperties": false,
+      "properties": {
+        "figures": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "caption", "source", "time_range", "baseline_compared", "annotated"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^FIG-[0-9]+$" },
+              "caption": { "type": "string", "minLength": 20, "pattern": "\\S" },
+              "source": { "$ref": "#/$defs/shortText" },
+              "time_range": { "$ref": "#/$defs/shortText" },
+              "baseline_compared": {
+                "description": "True when the figure overlays or shows the same window on a normal day.",
+                "type": "boolean"
+              },
+              "annotated": {
+                "description": "True when impact start, detection, mitigation and resolution are marked on the figure.",
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "summary": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["metric", "meaning", "normal_baseline", "during_incident", "source"],
+            "additionalProperties": false,
+            "properties": {
+              "metric": { "$ref": "#/$defs/shortText" },
+              "meaning": { "$ref": "#/$defs/shortText" },
+              "normal_baseline": { "$ref": "#/$defs/shortText" },
+              "during_incident": { "$ref": "#/$defs/shortText" },
+              "source": { "$ref": "#/$defs/shortText" }
+            }
+          }
+        }
+      }
+    },
+    "customer_impact": {
+      "type": "object",
+      "required": ["who", "experienced", "how_many", "how_counted", "duration", "business_metrics", "commitments", "contacted", "not_affected", "data_integrity"],
+      "additionalProperties": false,
+      "properties": {
+        "who": { "$ref": "#/$defs/text" },
+        "experienced": { "$ref": "#/$defs/text" },
+        "how_many": {
+          "description": "A count with its basis, or the literal prefix 'not determined:' followed by why.",
+          "$ref": "#/$defs/text"
+        },
+        "how_counted": { "$ref": "#/$defs/text" },
+        "duration": { "$ref": "#/$defs/text" },
+        "business_metrics": { "$ref": "#/$defs/text" },
+        "commitments": { "$ref": "#/$defs/text" },
+        "contacted": { "$ref": "#/$defs/text" },
+        "not_affected": { "$ref": "#/$defs/text" },
+        "data_integrity": { "$ref": "#/$defs/text" }
+      }
+    },
+    "response_analysis": {
+      "type": "object",
+      "required": ["went_well", "missed", "channels_of_inquiry"],
+      "additionalProperties": false,
+      "properties": {
+        "went_well": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/text" }
+        },
+        "missed": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["area", "gap", "effect"],
+            "additionalProperties": false,
+            "properties": {
+              "area": { "type": "string", "enum": ["detection", "diagnosis", "remediation", "coordination", "prevention"] },
+              "gap": { "$ref": "#/$defs/text" },
+              "effect": { "$ref": "#/$defs/text" }
+            }
+          }
+        },
+        "channels_of_inquiry": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "statement"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^CH-[0-9]+$" },
+              "statement": { "$ref": "#/$defs/text" }
+            }
+          }
+        }
+      }
+    },
+    "five_whys": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "kind", "channel", "problem_statement", "whys", "root_cause"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^RC-[A-Z]$" },
+          "kind": { "type": "string", "enum": ["failure", "detection", "resolution", "prior_actions"] },
+          "channel": { "type": "string", "pattern": "^CH-[0-9]+$" },
+          "problem_statement": { "$ref": "#/$defs/text" },
+          "whys": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["why", "because", "evidence"],
+              "additionalProperties": false,
+              "properties": {
+                "why": { "$ref": "#/$defs/text" },
+                "because": { "$ref": "#/$defs/text" },
+                "evidence": { "$ref": "#/$defs/shortText" }
+              }
+            }
+          },
+          "root_cause": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "lessons": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "root_cause"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^LL-[0-9]+$" },
+          "statement": { "type": "string", "minLength": 40, "pattern": "\\S" },
+          "root_cause": { "type": "string", "pattern": "^RC-[A-Z]$" }
+        }
+      }
+    },
+    "corrective_actions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "addresses", "improves"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^CA-[0-9]+$" },
+          "statement": { "type": "string", "minLength": 24, "pattern": "\\S" },
+          "addresses": {
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "pattern": "^LL-[0-9]+$" }
+          },
+          "improves": {
+            "description": "Which of the deck's halving questions this answers: prevention, time to detect, time to know, time to remediate.",
+            "type": "array",
+            "minItems": 1,
+            "items": { "type": "string", "enum": ["prevention", "ttd", "ttk", "ttr"] }
+          }
+        }
+      }
+    },
+    "action_items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "statement", "corrective_action", "owner", "owner_agreed", "due_date", "status", "prevents_recurrence"],
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string", "pattern": "^AI-[0-9]+$" },
+          "statement": { "type": "string", "minLength": 24, "pattern": "\\S" },
+          "corrective_action": { "type": "string", "pattern": "^CA-[0-9]+$" },
+          "owner": { "$ref": "#/$defs/accountableParty" },
+          "owner_agreed": {
+            "description": "The deck: never blindly assign action items. Must be true before GO review.",
+            "type": "boolean"
+          },
+          "due_date": { "$ref": "#/$defs/date" },
+          "status": { "type": "string", "enum": ["open", "in_progress", "done", "cancelled"] },
+          "prevents_recurrence": { "$ref": "#/$defs/text" }
+        }
+      }
+    },
+    "review": {
+      "type": "object",
+      "required": ["stages", "open_questions"],
+      "additionalProperties": false,
+      "properties": {
+        "stages": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["stage", "reviewer", "date", "outcome"],
+            "additionalProperties": false,
+            "properties": {
+              "stage": { "type": "string", "enum": ["team", "go", "exec_go", "stakeholder_alignment"] },
+              "reviewer": { "$ref": "#/$defs/roleText" },
+              "date": { "$ref": "#/$defs/date" },
+              "outcome": { "$ref": "#/$defs/text" }
+            }
+          }
+        },
+        "open_questions": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "question", "owner", "answer_due", "answer"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string", "pattern": "^Q-[0-9]{3}$" },
+              "question": { "$ref": "#/$defs/text" },
+              "owner": { "$ref": "#/$defs/accountableParty" },
+              "answer_due": { "$ref": "#/$defs/date" },
+              "answer": { "type": ["string", "null"], "pattern": "\\S" }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "shortText": { "type": "string", "minLength": 3, "pattern": "\\S" },
+    "text": { "type": "string", "minLength": 8, "pattern": "\\S" },
+    "roleText": {
+      "description": "A role or team, as the deck requires inside the PIR body. Never an individual's name.",
+      "type": "string",
+      "minLength": 3,
+      "pattern": "\\S"
+    },
+    "accountableParty": {
+      "description": "A person or a team who is accountable. The validator rejects placeholders (TBD, unknown, n/a, a left-in HUMAN_CONFIRM) and bare role words (product owner, team, on-call).",
+      "type": "string",
+      "minLength": 3,
+      "pattern": "\\S"
+    },
+    "date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "timestamp": {
+      "description": "ISO 8601 with an explicit offset. Z is accepted; a naive local time is not, because the template requires every time to carry its timezone.",
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}(:[0-9]{2})?(Z|[+-][0-9]{2}:[0-9]{2})$"
+    }
+  }
+}

@@ -1,0 +1,13 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A blocker the GO reviewer accepts as residual risk, recorded as a waiver: the review becomes PASS_WITH_WAIVERS and still validates."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+expect_clean: true
+mutations:
+  - {op: replace, path: /findings/0/severity, value: blocker}
+  - {op: add, path: /findings/0/waiver, value: {by: "GO, Digital Channels", reason: "Accepted for the GO review on 2026-09-12: the COE tracks per-team confirmation in its rollout board, which the review inspected."}}
+  - {op: replace, path: /status, value: PASS_WITH_WAIVERS}
+  - {op: replace, path: /blocker_count, value: 1}
+  - {op: replace, path: /non_blocker_count, value: 1}
+  - {op: replace, path: /waiver_count, value: 1}

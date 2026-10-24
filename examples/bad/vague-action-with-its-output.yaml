@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "'Monitor' that names the alert and threshold its remediation asks for is a warning for a person to confirm, not a block."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_warnings: [PIR-AI-VAGUE]
+mutations:
+  - {op: replace, path: /action_items/0/statement, value: "Monitor pool saturation with a new alert at 80% of max connections, paging the Order Capture on-call."}

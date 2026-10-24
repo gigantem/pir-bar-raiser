@@ -1,0 +1,102 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# Terms that make a PIR about people rather than processes. tools/validate_pir.py matches each
+# `pattern` (a regular expression, case-insensitive, applied to every prose field) and reports
+# PIR-BLAME-LANGUAGE. The deck: never blame or name individuals; PIRs are about processes,
+# not people. Keep patterns narrow: "failed to" is deliberately absent because "the alert
+# failed to fire" is neutral and common; "mistake" is absent because "a configuration mistake"
+# is a process fact; "should have caught" is absent because "the canary should have caught it"
+# is a process lesson.
+#
+# The validator matches each pattern against two views of the text, both Unicode-folded with
+# invisible characters and Cyrillic/Greek lookalikes removed: separators collapsed to one space
+# ("Human-error" reads "human error"), and in-word separators removed ("care-lessly" reads
+# "carelessly"). Write `\s?` between words so both views match.
+version: 0.1
+terms:
+  - term: human error
+    pattern: '\bhuman\s?error\b'
+    severity: high
+    why_it_matters: Names a person as the cause and stops the Five Whys one step short of the process that let the error reach production.
+    remediation: Ask why the process allowed the action to have that effect, and record that as the root cause.
+  - term: operator error
+    pattern: '\boperator\s?error\b'
+    severity: high
+    why_it_matters: Same as human error; the operator is where the chain starts, not where it ends.
+    remediation: Ask what made the erroneous action possible and undetected.
+  - term: user error
+    pattern: '\b(?:user|pilot)\s?errors?\b'
+    severity: high
+    why_it_matters: Moves the cause onto whoever was using the system, customer or colleague.
+    remediation: Ask why the system let that use cause harm, and record that as the root cause.
+  - term: careless
+    pattern: '\bcareless(?:ly|ness)?\b'
+    severity: high
+    why_it_matters: A character judgement, not an observation; nobody will act on it.
+    remediation: State the observed action and the control that was absent.
+  - term: negligent
+    pattern: '\bnegligen(?:t|ce)\b'
+    severity: high
+    why_it_matters: A legal and personal judgement that has no place in a blameless review.
+    remediation: Describe the gap in process or tooling that the action exposed.
+  - term: incompetent
+    pattern: '\bincompeten(?:t|ce)\b'
+    severity: high
+    why_it_matters: Blames an individual's ability; the review is about the system.
+    remediation: Name the missing training, documentation or guard rail instead.
+  - term: reckless
+    pattern: '\breckless(?:ly|ness)?\b'
+    severity: high
+    why_it_matters: A character judgement, not an observation.
+    remediation: State the observed action and the control that was absent.
+  - term: irresponsible
+    pattern: '\birresponsib(?:le|ly|ility)\b'
+    severity: high
+    why_it_matters: A character judgement, not an observation.
+    remediation: State the observed action and the control that was absent.
+  - term: culpable
+    pattern: '\bculpab(?:le|ly|ility)\b'
+    severity: high
+    why_it_matters: A legal and personal judgement that has no place in a blameless review.
+    remediation: Describe the gap in process or tooling that the action exposed.
+  - term: inattentive
+    pattern: '\binattentive(?:ly|ness)?\b'
+    severity: high
+    why_it_matters: Blames attention, which no corrective action can change; the system can.
+    remediation: Ask what would have drawn attention at the time, and make that the lesson.
+  - term: at fault
+    pattern: '\bat fault\b'
+    severity: high
+    why_it_matters: Assigns fault to a party rather than finding the cause.
+    remediation: Replace with the causal statement the evidence supports.
+  - term: their fault
+    pattern: '\b(?:their|his|her|whose)\s+fault\b(?!\s?(?:toleran|domain|inject|isolat|handl|detect|line|code|tree))'
+    severity: high
+    why_it_matters: Assigns fault to a person; "fault tolerance" and "fault domain" are not matched.
+    remediation: Replace with the causal statement the evidence supports.
+  - term: to blame
+    pattern: '\bto blame\b|\bblame[sd]?\b|\bblaming\b|\bblameworthy\b'
+    severity: high
+    why_it_matters: The word itself; a reviewer will stop reading for substance.
+    remediation: Remove and restate as a process gap.
+  - term: should have known
+    pattern: '\bshould(?:\Wve|\s+have)\s+(?:known|noticed|realised|realized|checked|tested|read|asked)\b|\bought\s+to\s+have\s+(?:known|noticed|realised|realized|checked)\b'
+    severity: medium
+    why_it_matters: Hindsight applied to a person; asks why they did not see what was not visible at the time.
+    remediation: Ask what would have made it visible at the time, and make that the lesson.
+  - term: sloppy
+    pattern: '\bsloppy\b|\blaz(?:y|ily|iness)\b(?!\s?(?:load|init|eval))'
+    severity: high
+    why_it_matters: A character judgement.
+    remediation: State the observed action and the control that was absent.
+  - term: should be disciplined
+    pattern: '\b(?:should|must|will|to)\s+be\s+(?:disciplined|reprimanded|punished|sanctioned)\b|\bperformance\s+improvement\s+plan\b'
+    severity: high
+    why_it_matters: Turns the review into a sanction; people stop telling the review what happened.
+    remediation: Remove it; the corrective action changes the system, not a person's record.
+  - term: fat finger
+    pattern: '\bfat\s?finger(?:ed|ing|s)?\b'
+    severity: medium
+    why_it_matters: A mistyped value is where the chain starts; the question is why one keystroke could do that.
+    remediation: Name the missing validation, confirmation or guard rail.

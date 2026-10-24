@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "The impact-start row disagrees with the lifecycle timestamp."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-TIMELINE-ANCHOR]
+mutations:
+  - {op: replace, path: /timeline/1/at, value: "2026-09-03T09:13:00+10:00"}

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "'INC-2026-0412' carries a year but is not a date; the summary still does not say when."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-SUMMARY-DATE]
+mutations:
+  - {op: replace, path: /summary, value: "Order Capture API experienced an 11% error rate for 74 minutes (INC-2026-0412) after a configuration change exhausted the database connection pool; about 4,200 submissions failed."}

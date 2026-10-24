@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An applied_to pointer that names nothing in the packet."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-APPLIED-UNRESOLVED]
+mutations:
+  - {op: replace, path: /questions/0/applied_to, value: ["/key_timings/no_such_field"]}

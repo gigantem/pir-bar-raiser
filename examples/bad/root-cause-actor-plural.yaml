@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "'The engineers deployed' names people as the cause; the plural is no different."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-ROOTCAUSE-ACTOR]
+mutations:
+  - {op: replace, path: /five_whys/0/root_cause, value: "The engineers deployed the concurrency change without raising the pool size."}

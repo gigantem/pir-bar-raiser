@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A FAIL review whose recorded revision no longer matches the packet: history, not a verdict on the current packet."
+kind: review
+base: examples/reviews/good/order-capture-draft-readiness.json
+expect_warnings: [REVIEW-SUBJECT-STALE]
+mutations:
+  - {op: replace, path: /subject/revision, value: "packet-sha256:0000000000000000000000000000000000000000000000000000000000000000"}

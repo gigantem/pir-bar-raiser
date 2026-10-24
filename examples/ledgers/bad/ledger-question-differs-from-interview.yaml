@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A ledger entry whose rule is not what the interview asked under that id."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-INTERVIEW-MISMATCH]
+mutations:
+  - {op: replace, path: /questions/0/rule, value: "PIR-TIME-ORDER"}

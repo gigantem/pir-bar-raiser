@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A ledger whose packet is declared external cannot be held against it."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-SCOPE-EXTERNAL]
+mutations:
+  - {"op": "replace", "path": "/scope/packet", "value": "external:SRE/pirs/order-capture.yaml"}

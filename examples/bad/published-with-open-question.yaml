@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Published while a review question is still unanswered."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-PUBLISHED-OPEN-QUESTION]
+mutations:
+  - {op: replace, path: /status, value: published}

@@ -1,0 +1,79 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# Verbs that make an action item untrackable: there is no state in which it is done. The deck:
+# action items are concrete, trackable steps with due dates. "Investigate X" has no due state;
+# "Determine whether X and record the answer in Y by <date>" does.
+#
+# tools/validate_pir.py reports PIR-AI-VAGUE when one of a term's `forms` opens the action item's
+# statement, or opens any clause of its first sentence. The opening may carry a subject and a
+# modal first ("We will investigate", "Platform team to review", "By 2026-10-10, assess"), and a
+# nominalisation counts ("Investigation of", "Analysis of"). A form elsewhere in a clause does not
+# ("Add a saturation panel so responders can review pool state" is concrete). Matching is
+# case-insensitive, on whole words, after hyphens and dashes are read as spaces.
+#
+# `satisfied_by` (optional) is a regular expression for the concrete output the term's own
+# remediation asks for. When the statement carries it, the finding is a warning rather than an
+# error: a person confirms the output is real ("Monitor pool saturation with a new alert at 80%"
+# names the alert and the threshold). Without it, the finding blocks. Keep each one as narrow as
+# its remediation: a single keyword would let "Investigate the alert" through.
+version: 0.2
+terms:
+  - term: investigate
+    forms: [investigate, investigates, investigating, investigation, investigations, re-investigate]
+    why_it_matters: Has no completion state; the investigation can run forever and never change anything.
+    remediation: Name the question to answer, where the answer is recorded, and what decision it feeds.
+    satisfied_by: '^(?=.*\b(?:record|write|document|publish)\w*\b[^.]*\b(?:in|on|to)\b)(?=.*\b(?:decision|decide|decides|choose|chooses)\b)'
+  - term: consider
+    forms: [consider, considers, considering, consideration, reconsider, re-consider]
+    why_it_matters: Can be satisfied by a moment's thought.
+    remediation: Name the decision to make and the criteria for making it.
+    satisfied_by: '^(?=.*\b(?:decision|decide|decides|choose|chooses)\b)(?=.*\b(?:criteria|criterion|threshold)\b)'
+  - term: look into
+    forms: [look into, looks into, looking into, look at, looks at, looking at, take a look at, have a look at]
+    why_it_matters: Same as investigate.
+    remediation: Name the question to answer and where the answer lands.
+    satisfied_by: '^(?=.*\b(?:record|write|document|publish)\w*\b[^.]*\b(?:in|on|to)\b)'
+  - term: explore
+    forms: [explore, explores, exploring, exploration]
+    why_it_matters: Same as investigate.
+    remediation: Name the options to compare and the decision that results.
+    satisfied_by: '^(?=.*\b(?:options?|alternatives?)\b)(?=.*\b(?:decision|decide|decides|choose|chooses)\b)'
+  - term: analyse
+    forms: [analyse, analyses, analysing, analyze, analyzes, analyzing, analysis]
+    why_it_matters: Same as investigate; an analysis with no stated output is done the moment it starts.
+    remediation: Name the question the analysis answers, where the result is recorded, and the decision it feeds.
+    satisfied_by: '^(?=.*\b(?:record|write|document|publish)\w*\b[^.]*\b(?:in|on|to)\b)(?=.*\b(?:decision|decide|decides|choose|chooses)\b)'
+  - term: review
+    forms: [review, reviews, reviewing, re-review]
+    why_it_matters: A review with no required outcome is done the moment it starts.
+    remediation: Name what the review must produce (a decision, a changed document, a list of gaps with owners).
+    satisfied_by: '^(?=.*\b(?:produce|produces|record|write|document|publish|update|amend)\w*\b)(?=.*\b(?:decision|decide|gaps?|owners?|document|runbook|policy)\b)'
+  - term: think about
+    forms: [think about, thinks about, thinking about, think through]
+    why_it_matters: Not observable.
+    remediation: Name the decision to make.
+  - term: discuss
+    forms: [discuss, discusses, discussing, discussion, discussions]
+    why_it_matters: A discussion is not an outcome.
+    remediation: Name the decision the discussion must reach and who records it.
+    satisfied_by: '^(?=.*\b(?:decision|decide|decides|agree|agrees)\b)(?=.*\b(?:record|write|document|publish)\w*\b)'
+  - term: assess
+    forms: [assess, assesses, assessing, assessment, reassess, re-assess, reassessment]
+    why_it_matters: Same as review.
+    remediation: Name the assessment's output and the decision it informs.
+    satisfied_by: '^(?=.*\b(?:record|write|document|publish|produce)\w*\b)(?=.*\b(?:decision|decide|decides|choose|chooses)\b)'
+  - term: evaluate
+    forms: [evaluate, evaluates, evaluating, evaluation, reevaluate, re-evaluate, re-evaluation]
+    why_it_matters: Same as review.
+    remediation: Name what is being chosen between and by when.
+    satisfied_by: '^(?=.*\b(?:between|options?|alternatives?)\b)(?=.*\b(?:decision|decide|decides|choose|chooses|select|selects)\b)'
+  - term: monitor
+    forms: [monitor, monitors, monitoring, keep an eye on]
+    why_it_matters: Ongoing observation with no end state; it never prevents recurrence by itself.
+    remediation: Name the alert or threshold that results from the monitoring, and who owns it.
+    satisfied_by: '^(?=.*\b(?:alert|alerts|alarm|alarms|page|pages|paging)\b)(?=.*(?:\d+(?:\.\d+)?\s?%|\bthreshold\b|[<>]=?\s?\d))'
+  - term: raise awareness
+    forms: [raise awareness, raises awareness, raising awareness, increase awareness, build awareness]
+    why_it_matters: Awareness decays and cannot be checked; it changes nothing the next responder will meet.
+    remediation: Change something the next responder will meet (a runbook step, a checklist item, a guard in the pipeline) and name it.

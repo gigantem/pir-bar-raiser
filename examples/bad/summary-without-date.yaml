@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A summary that does not say when."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-SUMMARY-DATE]
+mutations:
+  - {op: replace, path: /summary, value: "Order Capture API experienced an 11% error rate for 74 minutes after a configuration change exhausted the database connection pool. About 4,200 submissions from 3,100 customers failed before a rollback restored service."}

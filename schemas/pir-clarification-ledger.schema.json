@@ -1,0 +1,147 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.com/schemas/pir-clarification-ledger.schema.json",
+  "title": "PIR Clarification Ledger",
+  "description": "The audit trail of one interview round: every question the interview asked, and for each, the answer, its evidence, who gave it, when, and where in the packet it was transcribed (applied_to, RFC 6901 JSON pointers). The ledger is the audit trail; the packet is the state. The schema owns shape; tools/validate_pir_ledger.py owns the semantics: status and answer metadata agree, counts match, every cited path resolves or is declared external, answerers are people or teams and never placeholders, and the ledger matches the interview it was opened from.",
+  "type": "object",
+  "required": ["id", "scope", "status", "finding_counts", "questions"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*-L[0-9]{2}$",
+      "description": "The interview's stem followed by -L and the two-digit round, so PIR-2026-0412-I01 pairs with PIR-2026-0412-L01."
+    },
+    "scope": {
+      "type": "object",
+      "required": ["packet", "packet_id", "interview", "round", "source_artifacts"],
+      "additionalProperties": false,
+      "properties": {
+        "packet": {
+          "$ref": "#/$defs/reference",
+          "description": "The packet the answers are applied to, repo-relative. applied_to pointers are resolved against it."
+        },
+        "packet_id": { "type": ["string", "null"] },
+        "interview": {
+          "$ref": "#/$defs/reference",
+          "description": "The interview this ledger records answers to; every question id and rule must match it."
+        },
+        "round": { "type": "integer", "minimum": 1 },
+        "source_artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path", "role"],
+            "additionalProperties": false,
+            "properties": {
+              "path": { "$ref": "#/$defs/reference" },
+              "role": { "type": "string", "minLength": 3 }
+            }
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["OPEN", "PARTIALLY_RESOLVED", "RESOLVED"],
+      "description": "OPEN: no question settled. PARTIALLY_RESOLVED: some settled, some open. RESOLVED: none open, and every answer transcribed into the packet (applied_to non-empty)."
+    },
+    "finding_counts": {
+      "type": "object",
+      "required": ["total", "open", "blocking_open"],
+      "additionalProperties": false,
+      "properties": {
+        "total": { "type": "integer", "minimum": 0 },
+        "open": { "type": "integer", "minimum": 0 },
+        "blocking_open": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "questions": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/question" }
+    },
+    "notes": {
+      "type": "array",
+      "items": { "type": "string", "minLength": 1 }
+    }
+  },
+  "$defs": {
+    "reference": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Repo-relative path, resolved by tools/validate_pir_ledger.py. Evidence that deliberately lives outside this repository is prefixed 'external:' and is reported rather than resolved, so an intentional citation and a dead pointer never look the same."
+    },
+    "person": {
+      "type": "string",
+      "minLength": 2,
+      "description": "A person or a team who can be asked. Role words and placeholders ('owner', 'tbd') are rejected by the validator."
+    },
+    "date": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}([T ][0-9]{2}:[0-9]{2}(:[0-9]{2})?(Z|[+-][0-9]{2}:[0-9]{2}))?$"
+    },
+    "question": {
+      "type": "object",
+      "required": [
+        "id",
+        "rule",
+        "section",
+        "blocking",
+        "question",
+        "status",
+        "answer",
+        "answered_by",
+        "answered_at",
+        "answer_source",
+        "applied_to"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string", "pattern": "^Q-[0-9]{3}$" },
+        "rule": { "type": "string", "pattern": "^PIR-[A-Z0-9-]+$" },
+        "section": { "type": "string", "minLength": 3 },
+        "blocking": { "type": "boolean" },
+        "question": { "type": "string", "minLength": 10 },
+        "status": { "type": "string", "enum": ["open", "answered", "deferred", "waived"] },
+        "answer": { "type": ["string", "null"] },
+        "answered_by": { "oneOf": [{ "$ref": "#/$defs/person" }, { "type": "null" }] },
+        "answered_at": { "oneOf": [{ "$ref": "#/$defs/date" }, { "type": "null" }] },
+        "answer_source": {
+          "type": ["string", "null"],
+          "description": "Where the answer came from: a repo-relative path (resolved when path-shaped), an 'external:' reference, or prose such as 'interview with the on-call engineer, 2026-09-05'."
+        },
+        "applied_to": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "pattern": "^/.*",
+            "description": "RFC 6901 JSON pointer into the packet where the answer was transcribed, e.g. /five_whys/1."
+          }
+        },
+        "deferral": {
+          "type": "object",
+          "required": ["owner", "revisit_by", "reason"],
+          "additionalProperties": false,
+          "properties": {
+            "owner": { "$ref": "#/$defs/person" },
+            "revisit_by": { "$ref": "#/$defs/date" },
+            "reason": { "type": "string", "minLength": 10 }
+          }
+        },
+        "waiver": {
+          "type": "object",
+          "required": ["reason"],
+          "additionalProperties": false,
+          "properties": {
+            "reason": { "type": "string", "minLength": 10 }
+          }
+        },
+        "notes": {
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 }
+        }
+      }
+    }
+  }
+}

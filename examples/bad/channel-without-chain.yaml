@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A fourth channel that no Five Whys chain follows."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-CHANNEL-NO-CHAIN]
+mutations:
+  - {op: add, path: /response_analysis/channels_of_inquiry/-, value: {id: CH-4, statement: "Why the queued orders took 21 minutes to drain after mitigation."}}

@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Published with no GO review outcome."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-PUBLISHED-NO-REVIEW]
+mutations:
+  - {op: replace, path: /status, value: published}
+  - {op: remove, path: /review/stages/1}
+  - {op: replace, path: /review/open_questions/0/answer, value: "412 of the 1,900 were placed through the retail channel the same day."}

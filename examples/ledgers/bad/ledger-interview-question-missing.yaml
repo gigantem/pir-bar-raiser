@@ -1,0 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An interview question with no ledger entry at all."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-INTERVIEW-UNCOVERED]
+mutations:
+  - {op: remove, path: /questions/18}
+  - {op: replace, path: /finding_counts/total, value: 18}

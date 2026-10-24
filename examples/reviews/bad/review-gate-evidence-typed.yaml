@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Gate evidence that disagrees with a fresh validator run on the unchanged packet."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+expect: [REVIEW-GATE-EVIDENCE]
+mutations:
+  - {op: replace, path: /gate_evidence/warning_count, value: 9}

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "No chain follows the detection gap."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-CHAIN-KINDS]
+mutations:
+  - {op: replace, path: /five_whys/1/kind, value: failure}

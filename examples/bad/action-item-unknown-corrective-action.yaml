@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An action item implementing a corrective action that does not exist."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-AI-CA-UNKNOWN]
+mutations:
+  - {op: replace, path: /action_items/0/corrective_action, value: CA-9}

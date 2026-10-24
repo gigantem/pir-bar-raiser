@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Graphs with nothing to compare normal against."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-FIGURE-BASELINE]
+mutations:
+  - {op: replace, path: /metrics/figures/0/baseline_compared, value: false}
+  - {op: replace, path: /metrics/figures/1/baseline_compared, value: false}

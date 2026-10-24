@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "'decreased', 'separate', 'marketing' and 'may' are not dates; the summary still does not say when."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-SUMMARY-DATE]
+mutations:
+  - {op: replace, path: /summary, value: "Order Capture API decreased to an 11% success shortfall in a separate marketing push, and may recur; about 4,200 submissions failed before a rollback restored service."}

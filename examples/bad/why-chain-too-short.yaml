@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Two whys have not reached a process cause."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-WHY-DEPTH]
+mutations:
+  - {op: replace, path: /five_whys/0/whys, value: [{why: "Why did requests fail?", because: "The pool was exhausted.", evidence: FIG-2 panel A}, {why: "Why was it exhausted?", because: "Concurrency was raised to 200 against 60 connections.", evidence: CHG-88213}]}

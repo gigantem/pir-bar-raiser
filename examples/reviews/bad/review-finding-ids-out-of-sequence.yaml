@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "Finding ids that do not run FIND-001, FIND-002, ..."
+kind: review
+base: examples/reviews/good/order-capture-draft-readiness.json
+expect: [REVIEW-ID-SEQUENCE]
+mutations:
+  - {op: replace, path: /findings/0/id, value: "FIND-002"}

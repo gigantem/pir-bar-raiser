@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A repeat incident with no chain asking why earlier actions did not hold."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-CHAIN-PRIOR-ACTIONS]
+mutations:
+  - {op: replace, path: /document_control/repeat_incident, value: true}

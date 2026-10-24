@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A summary with no figures in it."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-SUMMARY-NUMBER]
+mutations:
+  - {op: replace, path: /summary, value: "Order Capture API experienced elevated errors on the third of September after a configuration change exhausted the database connection pool. Some customers could not submit orders for a while until a rollback restored service."}

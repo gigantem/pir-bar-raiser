@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "The worked example, published: GO review recorded and the open question answered, carries no error."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_clean: true
+mutations:
+  - {op: replace, path: /status, value: published}
+  - {op: replace, path: /review/open_questions/0/answer, value: "412 of the 1,900 were placed through the retail channel the same day; the remainder were not re-attempted within 7 days."}

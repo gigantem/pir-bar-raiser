@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A lexicon term hyphenated so a plain regex misses it."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-BLAME-LANGUAGE]
+mutations:
+  - {"op": "replace", "path": "/five_whys/0/root_cause", "value": "Human-error during the change: the limit was raised without the matching pool change."}

@@ -1,0 +1,63 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# Appendix B of the rendered template: the deck "What Good Looks Like for Post-Incident Reviews"
+# condensed into principles, timing, ownership, traceability, presenting and reviewing. Rendered by
+# tools/render_pir_docx.py; checked for shape by tools/validate_catalogs.py. The reviewer
+# checklist in the pir-assessment skill's references/ is the long form of B.6.
+version: 0.1
+source: What Good Looks Like for Post-Incident Reviews (2025)
+preamble: >-
+  Condensed from the reference guidance "What Good Looks Like for Post-Incident Reviews". Keep this
+  appendix in the template; remove it from a published PIR if your readers do not need it.
+sections:
+  - id: purpose
+    title: What a PIR is and who it is for
+    points:
+      - A PIR helps you understand why an outage, error or miss occurred, and ensures corrective mechanisms are in place to prevent recurrence regardless of operator.
+      - The focus is on fixing issues and improving processes, not assigning blame. PIRs are about processes, not people. Never blame or name individuals.
+      - An incident is a short cut straight to a real problem that, when fixed, will improve the current state. Never waste the opportunity.
+      - It is written for your team, your customers, your partners, your dependencies, your stakeholders, and yourself.
+  - id: timing
+    title: Timing
+    points:
+      - Start once customer impact is mitigated.
+      - "Draft within 2 to 3 business days: capture details while they are fresh and while high-resolution metrics are still available."
+      - "Publish within 1 to 2 weeks: reach consensus and define a plan."
+      - Do not delay because the root cause is incomplete; begin anyway. It is acceptable for final completion to take longer, especially where third parties are involved.
+  - id: ownership
+    title: Ownership and writing order
+    points:
+      - The Product Owner owns the PIR and presents it, drawing on the Incident Manager and subject-matter experts.
+      - "Write in this order: Timeline, Metrics and graphs, Customer impact, Incident response analysis, Five Whys, Lessons learned, Corrective actions, Action items, and finally Summary."
+      - Consider the PIR's impact on the roadmap, but do not let the roadmap drive the dates.
+  - id: traceability
+    title: The chain of traceability
+    points:
+      - Each Five Whys chain ends in a labelled root cause.
+      - Each lesson learned is numbered and references the root cause it derives from.
+      - "Each lesson has at least one corrective action: a high-level solution to the issue."
+      - "Each corrective action has at least one action item: an individual task with an owner and a reasonable due date."
+      - For every action item, ask whether it will prevent a re-occurrence of the event. Never blindly assign action items.
+  - id: presenting
+    title: Presenting a PIR
+    points:
+      - No slide deck. Work through the PIR document directly.
+      - Bring the subject-matter experts. The Product Owner presents.
+      - "No customer or stakeholder surprises: align beforehand."
+      - Assign a dedicated note-taker.
+      - Present facts and be data-specific. Be open, not defensive. Be prepared to say "I don't know, I will get back to you all with an answer."
+  - id: reviewing
+    title: Checklist for reviewers
+    points:
+      - Avoid blame.
+      - Focus on the timeline, the impact and metrics, the Five Whys, and the solutions.
+      - Do not nitpick grammar or writing style.
+      - Confirm whether the action items can prevent repeat issues.
+      - Are due dates in place?
+  - id: help
+    title: Where to get help
+    points:
+      - SRE Champions.
+      - Centres of Excellence (COEs).
+      - A PIR mailing list or community channel [insert your organisation's link].

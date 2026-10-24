@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "The scaffold sentinel retyped in lower case with spaces is still the sentinel, not a judgement."
+kind: review
+base: examples/reviews/good/order-capture-go-review.json
+expect: [REVIEW-SENTINEL]
+mutations:
+  - {op: replace, path: /summary, value: "Assessor judgement required: fill in the summary once the review is done."}

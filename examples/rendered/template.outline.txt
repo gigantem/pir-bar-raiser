@@ -1,0 +1,504 @@
+[-] Post-Incident Review (PIR)
+[-] [Incident ID]  [Short incident title]
+[-] Blameless review. Processes, not people.
+[-] How to use this template: Blameless throughout: processes, not people. Replace every [yellow field] with incident-specific content and delete the grey guidance boxes once a section is written.
+[-] Writing order: Write the sections in the order the reference guidance recommends: 2 Timeline, 3 Metrics, 4 Customer impact, 5 Response analysis, 6 Five Whys, 7 Lessons, 8 Corrective actions, 9 Action items, and write 1 Summary last. The document is laid out in reading order, not writing order. Appendix A explains what good looks like for each section with one worked example that runs through every section; Appendix B summarises PIR principles, timing, presenting and reviewing. Remove the guidance boxes and the appendices before publishing. Start the PIR as soon as customer impact is mitigated; draft within 2 to 3 business days; publish within 1 to 2 weeks.
+[Heading1] Document control
+[-] Guidance: The identity of the incident and the five lifecycle instants, each with its timezone. Detected at is the first signal of any kind, a customer report included. The PIR owner is the product owner, who presents it.
+[-] Incident ID
+[-] [e.g. INC-2026-0412]
+[-] Incident title
+[-] [Service or application: what customers experienced, in one line]
+[-] Severity
+[-] [Sev-1 / Sev-2 / Sev-3]
+[-] Service / application
+[-] [Primary service affected, plus dependent services if any]
+[-] Impact start
+[-] [YYYY-MM-DD HH:MM TZ: when customers first experienced impact (not when we noticed)]
+[-] Detected at
+[-] [YYYY-MM-DD HH:MM TZ: first signal of any kind, a customer report included]
+[-] Cause confirmed at
+[-] [YYYY-MM-DD HH:MM TZ: the cause proven with evidence]
+[-] Mitigated at
+[-] [YYYY-MM-DD HH:MM TZ: customer impact stopped or materially reduced]
+[-] Resolved at
+[-] [YYYY-MM-DD HH:MM TZ: service fully restored and incident closed]
+[-] Customer impact duration
+[-] [Mitigated at minus impact start, e.g. 74 min]
+[-] PIR owner (Product Owner)
+[-] [Role, team and name. The PO owns the PIR and presents it.]
+[-] Incident Manager
+[-] [Role and team]
+[-] Contributors / SMEs
+[-] [Teams and roles consulted, including third parties]
+[-] Repeat incident
+[-] [Yes, with the prior PIR reference / No]
+[-] PIR status
+[-] [Draft / In team review / In GO review / Published]
+[-] Draft due
+[-] [Impact-mitigated date + 2 to 3 business days]
+[-] Publish due
+[-] [Impact-mitigated date + 1 to 2 weeks]
+[-] Related records
+[-] [Change IDs, problem tickets, prior PIRs for repeat incidents, war-room link]
+[-] Classification
+[-] [e.g. General / Internal / Confidential]
+[Heading1] Contents
+[-] Guidance: Right-click and choose Update Field (or press F9) in Word to populate the contents after editing.
+[Heading1] 1. Summary
+[-] Guidance: Write this section last. One paragraph, readable by someone with no context. Pattern: <Application> experienced <metric> at <date time>. <What happened and a rough timeline>. <Customer impact>. See Appendix A.1.
+[-] [Application experienced metric at date time. What happened, rough timeline. Customer impact. Current state and whether the fix is permanent or interim.]
+[Heading2] 1.1 Key timings
+[-] Guidance: Derived from the timeline in section 2. Report literal values with units; do not estimate. If a value is unknown, say "not determined" and why.
+[-] Measure
+[-] Definition
+[-] Value
+[-] Time to detect (TTD)
+[-] Impact start to detected at
+[-] [e.g. 9 min]
+[-] Time to know (TTK)
+[-] Detected at to cause confirmed with evidence
+[-] [e.g. 44 min]
+[-] Time to remediate (TTR)
+[-] Cause confirmed to mitigated at
+[-] [e.g. 21 min]
+[-] Customer impact duration
+[-] Impact start to mitigated at
+[-] [e.g. 74 min]
+[-] Time to resolve
+[-] Impact start to resolved at
+[-] [e.g. 95 min]
+[Heading1] 2. Timeline
+[-] Guidance: Write this first. Easiest but most tedious. Distil the key events; do not log every message. Detail matters: exact timestamps with timezone, who-by-role (never by name), what was observed, what was decided, and what evidence supported it. Mark the phase so readers can see where time went. See Appendix A.2.
+[-] Time (TZ)
+[-] Event (what happened, what was observed or decided)
+[-] Evidence / source
+[-] Phase
+[-] [YYYY-MM-DD HH:MM TZ]
+[-] [Triggering change, deploy, or external event (if known)]
+[-] [Change ID, deploy log]
+[-] Precursor
+[-] [HH:MM]
+[-] [Customer impact begins (first affected request / transaction)]
+[-] [Graph, log query]
+[-] Impact start
+[-] [HH:MM]
+[-] [First signal: alert fired / customer report / ops noticed]
+[-] [Alert name, ticket]
+[-] Detection
+[-] [HH:MM]
+[-] [Incident declared at Sev-N; IM engaged; war room opened]
+[-] [Decision log]
+[-] Response
+[-] [HH:MM]
+[-] [Hypothesis raised / proven / rejected, with the evidence used]
+[-] [Dashboard, query]
+[-] Diagnosis
+[-] [HH:MM]
+[-] [Cause confirmed]
+[-] []
+[-] Diagnosis
+[-] [HH:MM]
+[-] [Mitigation decided and started (e.g. rollback, failover, scale-out)]
+[-] []
+[-] Remediation
+[-] [HH:MM]
+[-] [Customer impact stops or materially reduces]
+[-] [Graph]
+[-] Mitigated
+[-] [HH:MM]
+[-] [Service fully restored; backlog cleared; incident resolved]
+[-] []
+[-] Resolved
+[-] [HH:MM]
+[-] [Final stakeholder / customer communication sent]
+[-] [Comms record]
+[-] Comms
+[Heading1] 3. Metrics and graphs
+[-] Guidance: Capture granular data as soon as possible: some metrics expire when retention ends. Include annotated graphs with a normal baseline for comparison, aligned to the same time range across charts. Use the most granular metric available and avoid averages. Add an architecture or network diagram if the system is complex. See Appendix A.3.
+[Heading2] 3.1 Figures
+[-] [Insert Figure 1 here: the primary customer-facing metric over the incident window, with impact start, detection, mitigation and resolution annotated, and the same window from a normal day for comparison.]
+[-] Figure 1. [Metric name, service, time range and timezone, data source]
+[-] [Insert Figure 2 here: the diagnostic metric that confirmed the cause (e.g. saturation, error class, queue depth) on the same time range.]
+[-] Figure 2. [Caption]
+[-] [Insert a diagram here if the failure path crosses more than two components.]
+[-] Figure 3. [Caption]
+[Heading2] 3.2 Metric summary
+[-] Metric
+[-] What it tells us
+[-] Normal baseline
+[-] During incident
+[-] Source / link
+[-] [e.g. 5xx error rate (per min)]
+[-] [Customer-facing failure]
+[-] [0.2%]
+[-] [Peak 11%]
+[-] [Dashboard link]
+[-] [e.g. Order submissions succeeded (per min)]
+[-] [Business outcome]
+[-] []
+[-] []
+[-] []
+[-] [e.g. DB pool connections in use]
+[-] [Diagnostic / saturation]
+[-] []
+[-] []
+[-] []
+[Heading1] 4. Customer impact
+[-] Guidance: Quantify who was affected, how, and for how long, in customer and business terms rather than infrastructure terms. Contact customers to confirm and quantify impact where possible: PIRs help restore trust. State what was NOT affected if readers might assume otherwise. See Appendix A.4.
+[-] Question
+[-] Answer
+[-] Who was affected (segments, regions, channels, partners)?
+[-] []
+[-] What did they experience?
+[-] [In plain language: what the customer saw or could not do]
+[-] How many were affected? How do we know?
+[-] [Count, percentage of normal volume, and the method used to count]
+[-] For how long?
+[-] [Impact window, including any partial-degradation tail]
+[-] Business metrics affected
+[-] [e.g. failed orders, revenue at risk, delayed activations, support contacts]
+[-] Commitments breached (SLA, SLO, regulatory)?
+[-] [Which, by how much, and any credits or notifications owed]
+[-] Customers / partners contacted?
+[-] [Who, when, by whom (role), and what they told us]
+[-] What was not affected?
+[-] []
+[-] Any data loss, duplication or corruption?
+[-] [State explicitly, including "none" if verified and how]
+[Heading1] 5. Incident response and post-incident analysis
+[-] Guidance: Two questions: what did we miss, and how can we fix it? Walk through detection, diagnosis, remediation and coordination separately. This may branch into several channels of inquiry; list each so the Five Whys in section 6 can follow them. Be vocally self-critical and specific. See Appendix A.5.
+[Heading2] 5.1 What went well
+[ListBullet] [Specific things that shortened or contained the incident, and why they worked]
+[ListBullet] []
+[Heading2] 5.2 What we missed
+[-] Area
+[-] What we missed or what slowed us down
+[-] Effect on the incident
+[-] Detection (time to detect)
+[-] [e.g. no alert on the customer-facing metric; threshold too slow; alert went to the wrong team]
+[-] [e.g. 9 min with no signal at all]
+[-] Diagnosis (time to know)
+[-] [e.g. diagnostic metric not on the dashboard; wrong first hypothesis; missing access]
+[-] []
+[-] Remediation (time to remediate)
+[-] [e.g. rollback not automated; runbook stale; change approval delay]
+[-] []
+[-] Coordination and comms
+[-] [e.g. late escalation, unclear roles, stakeholder surprise]
+[-] []
+[-] Prevention
+[-] [e.g. change not tested at load; known risk not acted on; prior PIR action not completed]
+[-] []
+[Heading2] 5.3 Channels of inquiry
+[-] Guidance: List each distinct problem that contributed. Each becomes a Five Whys chain in section 6.
+[ListNumber] [The failure itself]
+[ListNumber] [Why it was not detected sooner]
+[ListNumber] [Why it took as long as it did to fix]
+[ListNumber] [If this has happened before: why previous actions did not prevent it]
+[Heading1] 6. Five Whys (root cause analysis)
+[-] Guidance: Ask "why" until you reach a cause that, if fixed, would have prevented the problem regardless of who was on shift. Four to six whys is normal; the number is not magic. Use a separate chain for each channel of inquiry in 5.3: the failure, the detection gap, the slow fix, and any previous actions that did not hold. Label each root cause (RC-A, RC-B, ...) so lessons can reference it. See Appendix A.6.
+[Heading2] 6.1 Chain A: the failure
+[-] Problem statement: [One sentence, stated as an observed fact]
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1
+[-] []
+[-] Why 2
+[-] []
+[-] Why 3
+[-] []
+[-] Why 4
+[-] []
+[-] Why 5
+[-] []
+[-] Root cause RC-A: [The process, design or tooling gap at the end of the chain. Not a person.]
+[Heading2] 6.2 Chain B: the detection gap
+[-] Problem statement: [One sentence, stated as an observed fact]
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1
+[-] []
+[-] Why 2
+[-] []
+[-] Why 3
+[-] []
+[-] Why 4
+[-] []
+[-] Why 5
+[-] []
+[-] Root cause RC-B: [The process, design or tooling gap at the end of the chain. Not a person.]
+[Heading2] 6.3 Chain C: the slow resolution
+[-] Problem statement: [One sentence, stated as an observed fact]
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1
+[-] []
+[-] Why 2
+[-] []
+[-] Why 3
+[-] []
+[-] Why 4
+[-] []
+[-] Why 5
+[-] []
+[-] Root cause RC-C: [The process, design or tooling gap at the end of the chain. Not a person.]
+[Heading2] 6.4 Chain D: why earlier actions did not prevent this (delete if not a repeat)
+[-] Problem statement: [One sentence, stated as an observed fact]
+[-] Why?
+[-] Because (answer, with evidence)
+[-] Why 1
+[-] []
+[-] Why 2
+[-] []
+[-] Why 3
+[-] []
+[-] Why 4
+[-] []
+[-] Why 5
+[-] []
+[-] Root cause RC-D: [The process, design or tooling gap at the end of the chain. Not a person.]
+[Heading1] 7. Lessons learned
+[-] Guidance: Lessons arise from the Five Whys. Number them, and reference the root cause each derives from. Each should say what should have happened differently. Be vocally self-critical: a lesson that could be read as blaming a person or a third party is not finished. Every lesson must have at least one corrective action in section 8. See Appendix A.7.
+[-] ID
+[-] Lesson (what should have happened differently)
+[-] From root cause
+[-] Corrective action(s)
+[-] LL-1
+[-] []
+[-] [RC-A]
+[-] [CA-1]
+[-] LL-2
+[-] []
+[-] [RC-B]
+[-] [CA-2]
+[-] LL-3
+[-] []
+[-] [RC-C]
+[-] [CA-3]
+[Heading1] 8. Corrective actions
+[-] Guidance: High-level solutions derived from the lessons. Each must link to one or more action items in section 9. For each, ask: what would halve the time to detect (health metrics, alarms)? halve the time to know (diagnostic metrics, triage tools)? halve the time to remediate (recovery tools, automation, automated rollback for deployment-related incidents)? And what prevents recurrence outright? See Appendix A.8.
+[-] ID
+[-] Corrective action (what we will change)
+[-] Addresses
+[-] Primarily improves
+[-] Action items
+[-] CA-1
+[-] []
+[-] [LL-1]
+[-] [Prevention / TTD / TTK / TTR]
+[-] [AI-1, AI-2]
+[-] CA-2
+[-] []
+[-] [LL-2]
+[-] []
+[-] []
+[-] CA-3
+[-] []
+[-] [LL-3]
+[-] []
+[-] []
+[Heading1] 9. Action items
+[-] Guidance: Concrete, trackable tasks with an owner (a role or team, agreed with them, never assigned blindly) and a reasonable due date. Each must trace to a corrective action and should help prevent recurrence; say how. Be bold: other teams may have seen this before, and a change to a shared tool may reduce impact across the company. Do not let roadmap pressure set the dates. See Appendix A.9.
+[-] ID
+[-] Action item (specific, verifiable)
+[-] CA
+[-] Owner (agreed)
+[-] Due date
+[-] Status
+[-] How it prevents recurrence
+[-] AI-1
+[-] []
+[-] [CA-1]
+[-] [Person or team who agreed]
+[-] [YYYY-MM-DD]
+[-] [Open]
+[-] []
+[-] AI-2
+[-] []
+[-] []
+[-] []
+[-] []
+[-] []
+[-] []
+[-] AI-3
+[-] []
+[-] []
+[-] []
+[-] []
+[-] []
+[-] []
+[Heading1] 10. Review and sign-off
+[-] Guidance: Do multiple reviews: team, then GO, and executive GO where warranted. Align with customers and stakeholders before any wider presentation so there are no surprises. Record who reviewed (by role), when, and what changed. Reviewers focus on timeline, impact and metrics, Five Whys and solutions, whether action items can prevent repeat issues, and whether due dates are in place. See Appendix B.
+[-] Note: Reviewer of this template: confirm the expansion of "GO" used by your organisation; it is carried over from the reference guidance.
+[-] Review stage
+[-] Reviewer (role)
+[-] Date
+[-] Outcome and material changes requested
+[-] Team review
+[-] []
+[-] []
+[-] []
+[-] GO review
+[-] []
+[-] []
+[-] []
+[-] Executive GO review (if warranted)
+[-] []
+[-] []
+[-] []
+[-] Customer / stakeholder alignment
+[-] []
+[-] []
+[-] []
+[Heading2] 10.1 Open questions raised in review
+[-] Guidance: It is fine to say "I don't know, I will get back to you". Record the question, who owns the answer, and when.
+[-] Question
+[-] Owner
+[-] Answer due
+[-] Answer / resolution
+[-] []
+[-] []
+[-] []
+[-] []
+[Heading1] Appendix A. Section guidance and worked example
+[-] This appendix states the expectation for each section of the template and shows what good looks like. The examples all describe one fictional incident, rendered from the same packet the validator accepts, so that you can see how the sections connect: a lesson references a root cause, a corrective action references a lesson, and an action item references a corrective action.
+[-] Worked example: Fictional incident used throughout: INC-2026-0412, Order Capture API: 11% of order submissions failed after a configuration change exhausted the database connection pool. The organisation, services, numbers and people are invented.
+[Heading2] A.1 Summary
+[-] Expectation. A single paragraph a reader with no context can understand in under a minute. It names the application, the customer-facing metric that moved, when, what happened in rough sequence, and the customer impact in numbers. It is written last, after every other section, because it summarises them. It contains no new facts that are not in the body. Pattern: <Application> experienced <metric> at <date time>. <What happened, rough timeline>. <Customer impact>.
+[-] Common mistakes. Writing it first and never updating it. Describing the fix without the impact. Infrastructure language ("pods restarted") instead of customer language ("orders failed"). Vague quantities ("some customers", "a short period").
+[-] Example: Order Capture API experienced an 11% HTTP 5xx error rate on order submissions from 09:12 to 10:26 AEST on 3 September 2026. Change CHG-88213, deployed at 09:04, raised the service's downstream concurrency limit from 50 to 200 without raising the database connection pool (fixed at 60), and the pool was exhausted under normal Wednesday-morning load. Customer care reported failures at 09:21, an alert fired at 09:27, pool exhaustion was confirmed as the cause at 10:05, and a rollback restored normal error rates at 10:26. Approximately 4,200 order submissions from around 3,100 customers failed during the window and 612 queued orders were delivered up to 40 minutes late. No orders were lost or duplicated. The rollback is a permanent fix for this change; the underlying gaps are addressed by CA-1 to CA-4.
+[-] Key timings. Time to detect (TTD) 9 min; Time to know (TTK) 44 min; Time to remediate (TTR) 21 min; Customer impact duration 74 min; Time to resolve 95 min
+[Heading2] A.2 Timeline
+[-] Expectation. A distilled, timestamped sequence of the events that mattered: the precursor change, the first customer impact, the first signal, each hypothesis and the evidence that proved or rejected it, each decision, mitigation, resolution and the key communications. Every row has a timezone-qualified time and a source a reader could check. People appear by role, never by name. The phase column lets a reader see where the time went. Ten to thirty rows is typical for a Sev-1; summarise chat, do not paste it.
+[-] Common mistakes. Starting at detection instead of impact start. Omitting rejected hypotheses, which hides time to know. "Team investigated" rows with no content.
+[-] Example: 2026-09-03 09:04 +10:00  CHG-88213 (config v2.14.0) deployed to Order Capture API production: downstream concurrency 50 to 200. Source: deploy log. Phase: Precursor.
+[-] 09:12  5xx rate on POST /orders rises from 0.2% to 8%, climbing to 11% by 09:20. Source: FIG-1. Phase: Impact start.
+[-] 09:21  Customer care reports 'order submit fails' in the support channel (first human signal; no alert yet). Source: ticket CS-55120. Phase: Detection.
+[-] 09:27  Alert 'OrderCapture 5xx > 5% for 10 min' pages the on-call engineer. Source: alert A-2231. Phase: Detection.
+[-] 09:31  Sev-1 declared; Incident Manager engaged; war room opened. Source: decision log. Phase: Response.
+[-] 09:45  Hypothesis 1 'Catalogue service degraded' rejected: catalogue p99 latency normal for the whole window. Source: FIG-2 panel B. Phase: Diagnosis.
+[-] 10:05  Hypothesis 2 'DB pool exhausted after config change' proven: pool in-use at 60/60 from 09:11; timing matches CHG-88213. Source: ad-hoc query, FIG-2 panel A. Phase: Diagnosis.
+[-] 10:14  Incident Manager decision: roll back to v2.13.4 rather than raise pool size, as the pool limit is untested above 60. Source: decision log. Phase: Remediation.
+[-] 10:26  Rollback complete; 5xx rate below 1%. Source: FIG-1. Phase: Mitigated.
+[-] 10:47  Queued orders (612) delivered; error rate at baseline; Sev-1 resolved. Source: order queue depth panel. Phase: Resolved.
+[-] 11:10  Final executive and customer-care update sent. Source: comms record. Phase: Comms.
+[Heading2] A.3 Metrics and graphs
+[-] Expectation. At least one graph of the customer-facing metric and one of the diagnostic metric that confirmed the cause, both over the same time range, annotated with impact start, detection, mitigation and resolution, and shown against a normal baseline (the same window on a comparable day). Use the most granular data available and avoid averages, which hide the shape of the failure. Add an architecture or network diagram when the failure path crosses several components. Capture the data immediately: high-resolution metrics are often downsampled or expire within days.
+[-] Common mistakes. Screenshots with no axis labels, no time range or no timezone. Charts of different windows that cannot be compared. Hourly averages over a 74-minute incident. Showing only the metric that looked bad and not the baseline that shows what normal is.
+[-] Example: Figure 1 (FIG-1). POST /orders HTTP 5xx rate, per minute, 3 Sep 2026 08:30 to 11:30 AEST (solid) overlaid with 27 Aug 2026 same window (dotted). Annotations at 09:04 deploy, 09:12 impact start, 09:27 alert, 10:26 rollback complete. Source: Grafana dashboard 'Order Capture / Overview', panel 3. Window: 2026-09-03 08:30 to 11:30 AEST. Annotated, baseline compared.
+[-] Figure 2 (FIG-2). Panel A: database connection pool in-use vs maximum (60), per 10 s, same window; flat at 60 from 09:11 to 10:25. Panel B: Catalogue service p99 latency, same window, within normal band throughout. Source: ad-hoc Prometheus query saved as PIR-0412-pool; Catalogue dashboard panel 7. Window: 2026-09-03 08:30 to 11:30 AEST. Annotated, baseline compared.
+[-] Metric summary row. POST /orders 5xx rate (per minute): Customer-facing failure; normal 0.2%; during the incident Peak 11%; source FIG-1.
+[-] Metric summary row. Order submissions succeeded (per minute): Business outcome; normal 540 plus or minus 60 at this hour; during the incident 470 to 490, with 60 to 70 failures per minute; source business metrics warehouse, query saved as PIR-0412-orders.
+[-] Metric summary row. DB connection pool in-use (of 60): Diagnostic saturation signal; normal 18 to 25; during the incident 60 (saturated) from 09:11 to 10:25; source FIG-2 panel A.
+[Heading2] A.4 Customer impact
+[-] Expectation. Who was affected, what they experienced in their terms, how many, for how long, and which business metrics and commitments were hit. Say how each number was derived so a reviewer can trust it. Contact affected customers or partners to confirm impact; a PIR that reflects the customer's own account restores trust faster than one that guesses. State clearly what was not affected and whether any data was lost, duplicated or corrupted.
+[-] Common mistakes. "Some customers were impacted.". Counting requests instead of customers. Omitting partners and internal consumers. Silence on data integrity, which readers will assume is bad news.
+[-] Example: Who was affected (segments, regions, channels, partners)? Consumer and small-business customers submitting orders through the web and app channels in all regions.
+[-] What did they experience? 'Something went wrong, please try again' on submit; retries also failed in most cases while the pool was exhausted.
+[-] How many were affected? How do we know? 4,180 failed submissions from 3,090 distinct customer IDs between 09:12 and 10:26, about 11% of submissions in the window. Counted by: Log query PIR-0412-failed over the gateway access logs, de-duplicated by customer ID.
+[-] For how long? 74 minutes of failed submissions (09:12 to 10:26), plus 21 minutes of delayed delivery for queued orders (to 10:47).
+[-] Business metrics affected An estimated 1,900 orders were not re-attempted by 17:00 compared with the normal re-attempt rate, roughly $86k of order value at risk; 612 orders delivered 20 to 40 minutes late; support contacts 3.4 times the hourly norm between 09:30 and 11:00.
+[-] Commitments breached (SLA, SLO, regulatory)? Monthly order-submit availability SLO (99.9%) consumed 58% of its error budget in one event. No contractual SLA breached.
+[-] Customers / partners contacted? Two enterprise partners contacted by the account team at 11:30 on 3 Sep; both confirmed impact matched our estimate.
+[-] What was not affected? Retail-store channel (separate order path); order status lookups; payments.
+[-] Any data loss, duplication or corruption? No orders lost or duplicated, verified by reconciling the order queue against the orders table at 11:05.
+[Heading2] A.5 Incident response and post-incident analysis
+[-] Expectation. An honest account of what the response missed and how it can be fixed, broken down by detection, diagnosis, remediation, coordination and prevention. Each gap states its effect on the incident in time or impact, which is what makes corrective actions prioritisable. Record what went well and why, because those practices should be kept. This section identifies the distinct problems as channels of inquiry; the Five Whys explain them.
+[-] Common mistakes. Only listing what went well. Gaps with no stated effect. Mixing causes with symptoms. Writing "human error" anywhere.
+[-] Example: Went well: Once pool exhaustion was confirmed, the decision to roll back rather than tune was made in 9 minutes and executed in 12, because the rollback runbook was current and had been rehearsed in August.
+[-] Went well: Customer care escalated the first reports to the on-call channel within 6 minutes of noticing them.
+[-] Detection (time to detect): The only alert on this path requires 5% errors sustained for 10 minutes, so it fired 15 minutes after impact start and 6 minutes after customer care had already noticed. Effect: The first 9 minutes of the 74-minute impact window had no signal at all, and the next 6 relied on customer care rather than monitoring.
+[-] Diagnosis (time to know): Pool saturation is not on the service dashboard; it was found by an ad-hoc query after the first hypothesis was rejected. Effect: Around 25 of the 44 minutes of time to know.
+[-] Remediation (time to remediate): Rollback required a manual decision and a manual pipeline trigger; no automated rollback exists for this service. Effect: About 12 of the 21 minutes of time to remediate were mechanical steps a deploy guard could have taken.
+[-] Prevention: CHG-88213 was classed as 'config only, low risk' and so required neither a load test nor a canary stage. Effect: The interaction between concurrency and pool size was never exercised before production.
+[-] Channels of inquiry: CH-1: Why the configuration change exhausted the connection pool.; CH-2: Why the alert took 15 minutes and arrived after a customer-care report.; CH-3: Why diagnosis took 44 minutes from first report to confirmed cause.
+[Heading2] A.6 Five Whys
+[-] Expectation. One chain per channel of inquiry. Each chain starts from an observed fact and asks why until it reaches a cause that is a process, design or tooling gap rather than an action by an individual, and that would have prevented the problem regardless of who was on shift. Four to six whys is typical; the number is not magic. Each answer cites evidence from the timeline or metrics. Chains of kind failure, detection and resolution are required; a prior-actions chain is required for a repeat incident.
+[-] Common mistakes. Stopping at "the engineer changed the config" (that is where the chain starts). A chain that reaches the right answer at why 2 and then pads to five. Answers with no evidence. One chain for everything.
+[-] Example: Chain A, the failure (CH-1). Problem: POST /orders returned 5xx for 11% of requests from 09:12.
+[-] Why 1: Why did requests fail? Requests timed out waiting for a database connection; pool in-use was 60 of 60 from 09:11. Evidence: FIG-2 panel A
+[-] Why 2: Why was the pool exhausted? CHG-88213 raised downstream concurrency from 50 to 200, so up to 200 in-flight requests competed for 60 connections. Evidence: CHG-88213 diff; deploy log
+[-] Why 3: Why could concurrency be raised without the pool? The two settings are tuned independently; nothing documents or enforces that pool size must scale with concurrency. Evidence: service configuration reference, no cross-reference between the two keys
+[-] Why 4: Why was the interaction not caught before production? The change was not load-tested, so the interaction was never exercised. Evidence: CHG-88213 record shows no load-test stage
+[-] Why 5: Why was it not load-tested? Our change policy classes configuration-only changes as low risk and exempts them from pre-production load testing and canary release. Evidence: change policy section 4.2
+[-] RC-A: Change policy treats capacity-affecting configuration as low risk, so such changes reach production without load testing or a canary.
+[-] Chain B, the detection gap (CH-2). Problem: The first alert fired 15 minutes after impact start, after a customer-care report.
+[-] Why 1: Why did the alert take 15 minutes? The alert requires 5% errors sustained for 10 minutes. Evidence: alert A-2231 definition
+[-] Why 2: Why is the window 10 minutes? It was widened from 2 to 10 minutes in May 2026 after false pages during a batch job. Evidence: alert change history, May 2026
+[-] Why 3: Why did it need de-tuning? The alert is on an infrastructure symptom (5xx) rather than the customer outcome (order submissions succeeding), so it has to be de-tuned to avoid noise. Evidence: alerting review notes
+[-] Why 4: Why is there no customer-outcome alert? No SLO-based alert on order-submit success exists; the service has an SLO but it is reported monthly, not alerted on. Evidence: SLO register entry for Order Capture
+[-] RC-B: Alerting is based on infrastructure symptoms with de-tuned thresholds; there is no burn-rate alert on the customer-facing SLO.
+[-] Chain C, the slow resolution (CH-3). Problem: It took 44 minutes from the first report to confirmed cause, 38 of them after the alert.
+[-] Why 1: Why did diagnosis take 44 minutes? The first 18 minutes were spent on the Catalogue hypothesis, and pool saturation was only found by an ad-hoc query afterwards. Evidence: decision log 09:31 to 10:05
+[-] Why 2: Why was pool saturation not seen sooner? Pool saturation is not on the service's dashboard, so responders did not see it. Evidence: dashboard 'Order Capture / Overview' panel list
+[-] Why 3: Why is it not on the dashboard? The dashboard was generated from the standard service template, which has latency, errors and traffic panels but no saturation panels. Evidence: dashboard template v3 definition
+[-] Why 4: Why does the template omit saturation? The template was never reviewed against the four golden signals guidance when it was adopted. Evidence: template adoption record, no review noted
+[-] RC-C: The standard service dashboard template omits saturation signals, so responders lack the diagnostic metric for a whole class of failures.
+[Heading2] A.7 Lessons learned
+[-] Expectation. Numbered lessons, each derived from a labelled root cause, each stating what should have happened differently. Written in the first person plural and vocally self-critical: the team owns the gap. Lessons are about processes, tools and design, never people or named third parties. Every lesson maps to at least one corrective action.
+[-] Common mistakes. Lessons that are really action items ("add an alert"). Lessons with no root cause reference. Softened language that nobody will act on ("could potentially consider").
+[-] Example: LL-1 (RC-A): We treated a change that quadrupled concurrency as low risk because it did not touch code. Capacity parameters are as risky as code and we should test and canary them the same way. Corrective actions: CA-1, CA-4.
+[-] LL-2 (RC-B): We found out from customer care, not from monitoring. We alert on what the infrastructure does, not on whether customers can place orders, and we have de-tuned those alerts to the point that they lag real impact by a quarter of an hour. Corrective actions: CA-2.
+[-] LL-3 (RC-C): We spent 25 minutes looking for a metric that should have been on the first screen a responder opens. Our dashboard template does not show saturation, and we never checked it against our own guidance. Corrective actions: CA-3.
+[Heading2] A.8 Corrective actions
+[-] Expectation. High-level solutions that follow from the lessons, each tied to the lesson it addresses and each decomposed into action items. For every lesson ask the halving questions: what would halve the time to detect (health metrics, alarms)? the time to know (diagnostic metrics, triage tools)? the time to remediate (recovery tools, automation, automated rollback for deployment-related incidents)? Then ask what prevents recurrence altogether.
+[-] Common mistakes. Corrective actions with no action items (they never happen). Only prevention and nothing for detection or recovery. Actions scoped to this team when the gap is shared.
+[-] Example: CA-1 (LL-1, improves Prevention): Reclassify capacity-affecting configuration changes as performance-impacting so they require a load test and a canary stage. Action items AI-1, AI-2.
+[-] CA-2 (LL-2, improves TTD): Alert on the order-submit success SLO using multi-window burn rate, so a real 11% failure pages within 2 minutes without adding noise. Action items AI-3, AI-4.
+[-] CA-3 (LL-3, improves TTK): Add saturation panels (connection pools, thread pools, queue depth) to the standard dashboard template and roll out to all services that use it. Action items AI-5, AI-6.
+[-] CA-4 (LL-1, improves TTR): Automatic rollback of a deployment when SLO burn rate crosses the fast-burn threshold within 30 minutes of the deploy. Action items AI-7.
+[Heading2] A.9 Action items
+[-] Expectation. Individual tasks that someone can do and someone else can verify as done, each traced to a corrective action, with an owner (a person or team who has agreed to it), a due date that is reasonable for the work rather than driven by the roadmap, a status, and a sentence on how it helps prevent recurrence. Be bold: if another team or a shared tool is the right place for the fix, say so and engage them. Never assign an action to someone who has not agreed. Five well-chosen items beat twenty.
+[-] Common mistakes. "Investigate" or "Consider" items with no end state. Owners who were not asked. Due dates of "Q4". Items that address the symptom but would not stop the next occurrence.
+[-] Example: AI-1 (CA-1): Amend the change-risk classification in the change policy so that any change to concurrency, pool, queue or rate-limit parameters is classed performance-impacting. Owner: Change Management practice lead. Due 2026-10-10. Status: open. Routes capacity changes to load test and canary, so the untested interaction cannot reach production unexercised.
+[-] AI-2 (CA-1): Add a load-test stage to the Order Capture API pipeline that runs the standard Wednesday-morning traffic profile against any performance-impacting change. Owner: Order Capture team lead. Due 2026-10-24. Status: open. Exercises concurrency and pool settings together under representative load before release.
+[-] AI-3 (CA-2): Implement a multi-window burn-rate alert (1 h / 5 min fast burn, 6 h / 30 min slow burn) on the order-submit success SLO, paging the Order Capture on-call. Owner: Order Capture SRE champion. Due 2026-10-03. Status: in progress. Halves time to detect: an 11% failure pages within about 2 minutes instead of 15.
+[-] AI-4 (CA-2): Retire the '5xx > 5% for 10 min' alert once AI-3 has run for two weeks without false pages. Owner: Order Capture SRE champion. Due 2026-10-17. Status: open. Removes the de-tuned symptom alert so responders are not paged twice for one event and the SLO alert is the one that is maintained.
+[-] AI-5 (CA-3): Add saturation panels (DB pool in-use vs max, HTTP client pool, worker queue depth) to the standard service dashboard template. Owner: Observability COE. Due 2026-10-17. Status: open. Halves time to know for pool and queue exhaustion across every service built from the template.
+[-] AI-6 (CA-3): Regenerate dashboards for the 14 services using the template and confirm each one shows its pools. Owner: Observability COE with each service team. Due 2026-11-07. Status: open. Makes the diagnostic metric visible where responders look, for the other 13 services as well as this one.
+[-] AI-7 (CA-4): Enable deploy-guard auto-rollback for Order Capture API, triggered by the AI-3 fast-burn alert within 30 minutes of a deploy. Owner: Order Capture team lead. Due 2026-11-14. Status: open. Halves time to remediate for deployment-caused incidents by removing the human decision loop.
+[Heading2] A.10 Review and sign-off
+[-] Expectation. A record of each review stage with the reviewer's role, date and the material changes requested. Reviews are sequential: team first, then GO, then executive GO where the severity or customer exposure warrants it. Align with affected customers and stakeholders before any wider presentation. Questions you cannot answer in the review are recorded with an owner and a date rather than guessed at.
+[-] Common mistakes. Publishing before the GO review has an outcome. Open questions answered from memory after the meeting with no record.
+[-] Example: Team review: Order Capture engineering team, 2026-09-08. Asked for the de-duplicated customer count (added to customer impact) and for RC-C to go one why deeper (added why 4 and revised the root cause).
+[-] GO review: GO, Digital Channels, 2026-09-12. Accepted. Asked whether AI-5 should cover all 14 template users rather than only Order Capture; AI-6 added as a result.
+[-] Open question: Q-001: How many of the 1,900 non-re-attempted orders were eventually placed through another channel? Owner: Order Capture product owner (A. Example). Answer due 2026-09-19. Answer: open.
+[Heading1] Appendix B. PIR principles, timing, presenting and reviewing
+[-] Condensed from the reference guidance "What Good Looks Like for Post-Incident Reviews". Keep this appendix in the template; remove it from a published PIR if your readers do not need it.
+[Heading2] B.1 What a PIR is and who it is for
+[ListBullet] A PIR helps you understand why an outage, error or miss occurred, and ensures corrective mechanisms are in place to prevent recurrence regardless of operator.
+[ListBullet] The focus is on fixing issues and improving processes, not assigning blame. PIRs are about processes, not people. Never blame or name individuals.
+[ListBullet] An incident is a short cut straight to a real problem that, when fixed, will improve the current state. Never waste the opportunity.
+[ListBullet] It is written for your team, your customers, your partners, your dependencies, your stakeholders, and yourself.
+[Heading2] B.2 Timing
+[ListBullet] Start once customer impact is mitigated.
+[ListBullet] Draft within 2 to 3 business days: capture details while they are fresh and while high-resolution metrics are still available.
+[ListBullet] Publish within 1 to 2 weeks: reach consensus and define a plan.
+[ListBullet] Do not delay because the root cause is incomplete; begin anyway. It is acceptable for final completion to take longer, especially where third parties are involved.
+[Heading2] B.3 Ownership and writing order
+[ListBullet] The Product Owner owns the PIR and presents it, drawing on the Incident Manager and subject-matter experts.
+[ListBullet] Write in this order: Timeline, Metrics and graphs, Customer impact, Incident response analysis, Five Whys, Lessons learned, Corrective actions, Action items, and finally Summary.
+[ListBullet] Consider the PIR's impact on the roadmap, but do not let the roadmap drive the dates.
+[Heading2] B.4 The chain of traceability
+[ListBullet] Each Five Whys chain ends in a labelled root cause.
+[ListBullet] Each lesson learned is numbered and references the root cause it derives from.
+[ListBullet] Each lesson has at least one corrective action: a high-level solution to the issue.
+[ListBullet] Each corrective action has at least one action item: an individual task with an owner and a reasonable due date.
+[ListBullet] For every action item, ask whether it will prevent a re-occurrence of the event. Never blindly assign action items.
+[Heading2] B.5 Presenting a PIR
+[ListBullet] No slide deck. Work through the PIR document directly.
+[ListBullet] Bring the subject-matter experts. The Product Owner presents.
+[ListBullet] No customer or stakeholder surprises: align beforehand.
+[ListBullet] Assign a dedicated note-taker.
+[ListBullet] Present facts and be data-specific. Be open, not defensive. Be prepared to say "I don't know, I will get back to you all with an answer."
+[Heading2] B.6 Checklist for reviewers
+[ListBullet] Avoid blame.
+[ListBullet] Focus on the timeline, the impact and metrics, the Five Whys, and the solutions.
+[ListBullet] Do not nitpick grammar or writing style.
+[ListBullet] Confirm whether the action items can prevent repeat issues.
+[ListBullet] Are due dates in place?
+[Heading2] B.7 Where to get help
+[ListBullet] SRE Champions.
+[ListBullet] Centres of Excellence (COEs).
+[ListBullet] A PIR mailing list or community channel [insert your organisation's link].

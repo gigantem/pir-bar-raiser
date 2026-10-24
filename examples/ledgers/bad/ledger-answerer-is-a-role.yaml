@@ -1,0 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "An answer attributed to a role rather than a person or team."
+kind: ledger
+base: examples/ledgers/good/order-capture-draft-L01-resolved.yaml
+expect: [LEDGER-ANSWERER-GENERIC]
+mutations:
+  - {op: replace, path: /questions/0/answered_by, value: "Product owner"}

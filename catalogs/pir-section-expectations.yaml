@@ -1,0 +1,369 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+#
+# Appendix A of docs/templates/PIR-Template-DRAFT.docx, made machine-readable. One entry per
+# template section plus one cross-cutting entry. This is the single source for three things:
+#   1. the template's appendix (rendered from here);
+#   2. the interview's "why this matters" and "example" text for every gap, and the grey
+#      guidance box under each heading of the rendered document (`template_guidance`);
+#   3. the section each validator rule belongs to (`rules`), which tools/validate_catalogs.py
+#      checks against tools/validate_pir.py so a rule cannot exist without a home, and a home
+#      cannot list a rule that does not exist.
+# `writing_order` is the deck's order of authoring: timeline first, summary last.
+version: 0.1
+sections:
+  - id: document_control
+    title: Document control
+    template_section: "0"
+    writing_order: 0
+    expectation: >-
+      The incident identity and the five lifecycle instants: impact start (when customers first
+      experienced it, not when we noticed), detected, cause confirmed, mitigated, resolved. Every
+      timestamp carries its timezone. The PIR owner is the product owner, named; the incident
+      manager and contributors are roles and teams. Draft and publish due dates follow the deck:
+      draft within 2 to 3 business days of mitigation, publish within 1 to 2 weeks.
+    common_mistakes:
+      - Recording detection time as impact start, which hides time to detect.
+      - Times without a timezone.
+      - Leaving the owner as "TBD", so nobody presents the PIR.
+    example: >-
+      INC-2026-0412, Sev-1, Order Capture API. Impact start 2026-09-03T09:12+10:00, detected
+      09:21 (first customer-care report), cause confirmed 10:05, mitigated 10:26, resolved 10:47. PIR owner: Order Capture
+      product owner (A. Example). Draft due 2026-09-08, publish due 2026-09-17.
+    interview_prompt: >-
+      Confirm the five lifecycle times with their timezone, the severity, the primary service,
+      and who owns and will present this PIR.
+    template_guidance: "The identity of the incident and the five lifecycle instants, each with its timezone. Detected at is the first signal of any kind, a customer report included. The PIR owner is the product owner, who presents it."
+    rules:
+      - PIR-TIME-ORDER
+      - PIR-TIMESTAMPS-COLLAPSED
+      - PIR-TIMINGS-DECLARED
+      - PIR-DUE-DRAFT-LATE
+      - PIR-DUE-PUBLISH-LATE
+      - PIR-DUE-BEFORE-INCIDENT
+  - id: summary
+    title: Summary
+    template_section: "1"
+    writing_order: 9
+    expectation: >-
+      A single paragraph a reader with no context can understand in under a minute. It names
+      the application, the customer-facing metric that moved, when, what happened in rough
+      sequence, and the customer impact in numbers. It is written last, after every other
+      section, because it summarises them. It contains no new facts that are not in the body.
+      Pattern: <Application> experienced <metric> at <date time>. <What happened, rough
+      timeline>. <Customer impact>.
+    common_mistakes:
+      - Writing it first and never updating it.
+      - Describing the fix without the impact.
+      - Infrastructure language ("pods restarted") instead of customer language ("orders failed").
+      - Vague quantities ("some customers", "a short period").
+    example: >-
+      Order Capture API experienced an 11% HTTP 5xx error rate on order submissions from 09:12
+      to 10:26 AEST on 3 September 2026. Change CHG-88213, deployed at 09:04, raised the
+      service's downstream concurrency limit from 50 to 200 without raising the database
+      connection pool (fixed at 60), and the pool was exhausted under normal Wednesday-morning
+      load. An alert fired at 09:27, pool exhaustion was confirmed as the cause at 10:05, and a
+      rollback restored normal error rates at 10:26. Approximately 4,200 order submissions from
+      around 3,100 customers failed during the window and 612 queued orders were delivered up
+      to 40 minutes late. No orders were lost or duplicated.
+    interview_prompt: >-
+      Now that every other section is written, summarise it in one paragraph following the
+      pattern. Name the service, the metric, the date and time, the sequence, and the impact in
+      numbers.
+    template_guidance: "Write this section last. One paragraph, readable by someone with no context. Pattern: <Application> experienced <metric> at <date time>. <What happened and a rough timeline>. <Customer impact>. See Appendix A.1."
+    rules:
+      - PIR-SUMMARY-SERVICE
+      - PIR-SUMMARY-NUMBER
+      - PIR-SUMMARY-DATE
+  - id: timeline
+    title: Timeline
+    template_section: "2"
+    writing_order: 1
+    expectation: >-
+      A distilled, timestamped sequence of the events that mattered: the precursor change, the
+      first customer impact, the first signal, each hypothesis and the evidence that proved or
+      rejected it, each decision, mitigation, resolution and the key communications. Every row
+      has a timezone-qualified time and a source a reader could check. People appear by role,
+      never by name. The phase column lets a reader see where the time went. Ten to thirty rows
+      is typical for a Sev-1; summarise chat, do not paste it.
+    common_mistakes:
+      - Starting at detection instead of impact start.
+      - Omitting rejected hypotheses, which hides time to know.
+      - "\"Team investigated\" rows with no content."
+    example: >-
+      09:04 AEST CHG-88213 deployed (deploy log, precursor). 09:12 5xx rate rises from 0.2% to
+      8% (FIG-1, impact start). 09:21 customer care reports failures (CS-55120, detection).
+      09:27 alert pages on-call (A-2231, detection). 09:45 Hypothesis 1 rejected: catalogue p99
+      normal (FIG-2B, diagnosis). 10:05 Hypothesis 2 proven: pool 60/60 (FIG-2A, diagnosis).
+      10:14 decision to roll back (decision log, remediation). 10:26 rollback complete, 5xx
+      below 1% (FIG-1, mitigated). 10:47 queue drained, resolved.
+    interview_prompt: >-
+      Walk through the incident from the precursor to the final communication. For each event
+      give the time with timezone, what was observed or decided, the evidence, and the phase.
+    template_guidance: "Write this first. Easiest but most tedious. Distil the key events; do not log every message. Detail matters: exact timestamps with timezone, who-by-role (never by name), what was observed, what was decided, and what evidence supported it. Mark the phase so readers can see where time went. See Appendix A.2."
+    rules:
+      - PIR-TIMELINE-ORDER
+      - PIR-TIMELINE-PHASE-MISSING
+      - PIR-TIMELINE-ANCHOR
+      - PIR-TIMELINE-NO-DIAGNOSIS
+  - id: metrics
+    title: Metrics and graphs
+    template_section: "3"
+    writing_order: 2
+    expectation: >-
+      At least one graph of the customer-facing metric and one of the diagnostic metric that
+      confirmed the cause, both over the same time range, annotated with impact start,
+      detection, mitigation and resolution, and shown against a normal baseline (the same
+      window on a comparable day). Use the most granular data available and avoid averages,
+      which hide the shape of the failure. Add an architecture or network diagram when the
+      failure path crosses several components. Capture the data immediately: high-resolution
+      metrics are often downsampled or expire within days.
+    common_mistakes:
+      - Screenshots with no axis labels, no time range or no timezone.
+      - Charts of different windows that cannot be compared.
+      - Hourly averages over a 74-minute incident.
+      - Showing only the metric that looked bad and not the baseline that shows what normal is.
+    example: >-
+      FIG-1: POST /orders 5xx rate per minute, 3 Sep 08:30 to 11:30 AEST, overlaid with 27 Aug
+      same window; annotated at deploy, impact start, alert, rollback. FIG-2: pool in-use vs
+      maximum per 10 s, same window, flat at 60 from 09:11 to 10:25.
+    interview_prompt: >-
+      Which graphs show the customer-facing metric and the diagnostic metric over the incident
+      window? Is each annotated and compared to a normal baseline? Where is the data?
+    template_guidance: "Capture granular data as soon as possible: some metrics expire when retention ends. Include annotated graphs with a normal baseline for comparison, aligned to the same time range across charts. Use the most granular metric available and avoid averages. Add an architecture or network diagram if the system is complex. See Appendix A.3."
+    rules:
+      - PIR-FIGURES-NONE
+      - PIR-FIGURE-BASELINE
+      - PIR-FIGURE-ANNOTATED
+      - PIR-METRIC-SUMMARY-EMPTY
+      - PIR-METRIC-AVERAGE
+  - id: customer_impact
+    title: Customer impact
+    template_section: "4"
+    writing_order: 3
+    expectation: >-
+      Who was affected, what they experienced in their terms, how many, for how long, and which
+      business metrics and commitments were hit. Say how each number was derived so a reviewer
+      can trust it. Contact affected customers or partners to confirm impact; a PIR that
+      reflects the customer's own account restores trust faster than one that guesses. State
+      clearly what was not affected and whether any data was lost, duplicated or corrupted.
+    common_mistakes:
+      - "\"Some customers were impacted.\""
+      - Counting requests instead of customers.
+      - Omitting partners and internal consumers.
+      - Silence on data integrity, which readers will assume is bad news.
+    example: >-
+      4,180 failed submissions from 3,090 distinct customer IDs between 09:12 and 10:26 (log
+      query PIR-0412-failed, de-duplicated by customer ID), about 11% of submissions in the
+      window. Two enterprise partners contacted at 11:30; both confirmed the estimate. No orders
+      lost or duplicated, verified by reconciling the queue against the orders table at 11:05.
+    interview_prompt: >-
+      Who was affected, what did they see, how many (and how was that counted), for how long,
+      what business metrics and commitments were hit, who was contacted, what was not affected,
+      and was any data lost?
+    template_guidance: "Quantify who was affected, how, and for how long, in customer and business terms rather than infrastructure terms. Contact customers to confirm and quantify impact where possible: PIRs help restore trust. State what was NOT affected if readers might assume otherwise. See Appendix A.4."
+    rules:
+      - PIR-IMPACT-QUANTIFIED
+      - PIR-IMPACT-DURATION
+  - id: response_analysis
+    title: Incident response and post-incident analysis
+    template_section: "5"
+    writing_order: 4
+    expectation: >-
+      An honest account of what the response missed and how it can be fixed, broken down by
+      detection, diagnosis, remediation, coordination and prevention. Each gap states its effect
+      on the incident in time or impact, which is what makes corrective actions prioritisable.
+      Record what went well and why, because those practices should be kept. This section
+      identifies the distinct problems as channels of inquiry; the Five Whys explain them.
+    common_mistakes:
+      - Only listing what went well.
+      - Gaps with no stated effect.
+      - Mixing causes with symptoms.
+      - Writing "human error" anywhere.
+    example: >-
+      Detection: the only alert requires 5% errors for 10 minutes, so it fired 15 minutes after
+      impact start and 6 after customer care had noticed; effect, 9 minutes with no signal and 6
+      more without monitoring. Diagnosis: pool saturation not on the dashboard; effect, around 25
+      of the 44 minutes of time to know. Channels: (1) why the change exhausted the pool; (2) why
+      the alert took 15 minutes; (3) why diagnosis took 44.
+    interview_prompt: >-
+      For detection, diagnosis and remediation in turn: what slowed us down or what did we miss,
+      and what did it cost in time or impact? What went well? What distinct problems need their
+      own Five Whys chain?
+    template_guidance: "Two questions: what did we miss, and how can we fix it? Walk through detection, diagnosis, remediation and coordination separately. This may branch into several channels of inquiry; list each so the Five Whys in section 6 can follow them. Be vocally self-critical and specific. See Appendix A.5."
+    rules:
+      - PIR-MISSED-AREAS
+      - PIR-CHANNELS-NONE
+      - PIR-CHANNEL-NO-CHAIN
+      - PIR-CHAIN-UNKNOWN-CHANNEL
+  - id: five_whys
+    title: Five Whys
+    template_section: "6"
+    writing_order: 5
+    expectation: >-
+      One chain per channel of inquiry. Each chain starts from an observed fact and asks why
+      until it reaches a cause that is a process, design or tooling gap rather than an action
+      by an individual, and that would have prevented the problem regardless of who was on
+      shift. Four to six whys is typical; the number is not magic. Each answer cites evidence
+      from the timeline or metrics. Chains of kind failure, detection and resolution are
+      required; a prior-actions chain is required for a repeat incident.
+    common_mistakes:
+      - Stopping at "the engineer changed the config" (that is where the chain starts).
+      - A chain that reaches the right answer at why 2 and then pads to five.
+      - Answers with no evidence.
+      - One chain for everything.
+    example: >-
+      Chain A (failure). Why did requests fail? Pool in-use 60 of 60 (FIG-2A). Why exhausted?
+      CHG-88213 raised concurrency 50 to 200 against 60 connections. Why could it be raised
+      alone? The two settings are tuned independently. Why not caught? Not load-tested. Why
+      not? Change policy classes config-only changes as low risk. RC-A: change policy treats
+      capacity-affecting configuration as low risk.
+    interview_prompt: >-
+      For each channel of inquiry, state the problem as an observed fact, then ask why until the
+      answer is a process, design or tooling gap. Give the evidence for each answer.
+    template_guidance: "Ask \"why\" until you reach a cause that, if fixed, would have prevented the problem regardless of who was on shift. Four to six whys is normal; the number is not magic. Use a separate chain for each channel of inquiry in 5.3: the failure, the detection gap, the slow fix, and any previous actions that did not hold. Label each root cause (RC-A, RC-B, ...) so lessons can reference it. See Appendix A.6."
+    rules:
+      - PIR-CHAIN-KINDS
+      - PIR-CHAIN-PRIOR-ACTIONS
+      - PIR-WHY-DEPTH
+      - PIR-WHY-SHALLOW
+      - PIR-ROOTCAUSE-ACTOR
+      - PIR-WHY-REPEATED
+      - PIR-CHAIN-DUPLICATE
+  - id: lessons
+    title: Lessons learned
+    template_section: "7"
+    writing_order: 6
+    expectation: >-
+      Numbered lessons, each derived from a labelled root cause, each stating what should have
+      happened differently. Written in the first person plural and vocally self-critical: the
+      team owns the gap. Lessons are about processes, tools and design, never people or named
+      third parties. Every lesson maps to at least one corrective action.
+    common_mistakes:
+      - Lessons that are really action items ("add an alert").
+      - Lessons with no root cause reference.
+      - Softened language that nobody will act on ("could potentially consider").
+    example: >-
+      LL-2 (RC-B): We found out from customer care, not from monitoring. We alert on what the
+      infrastructure does, not on whether customers can place orders, and we have de-tuned
+      those alerts to the point that they lag real impact by a quarter of an hour.
+    interview_prompt: >-
+      For each root cause, what should have happened differently? Say it as "we", and say it
+      plainly.
+    template_guidance: "Lessons arise from the Five Whys. Number them, and reference the root cause each derives from. Each should say what should have happened differently. Be vocally self-critical: a lesson that could be read as blaming a person or a third party is not finished. Every lesson must have at least one corrective action in section 8. See Appendix A.7."
+    rules:
+      - PIR-LESSONS-NONE
+      - PIR-LESSON-RC-UNKNOWN
+      - PIR-RC-NO-LESSON
+  - id: corrective_actions
+    title: Corrective actions
+    template_section: "8"
+    writing_order: 7
+    expectation: >-
+      High-level solutions that follow from the lessons, each tied to the lesson it addresses
+      and each decomposed into action items. For every lesson ask the halving questions: what
+      would halve the time to detect (health metrics, alarms)? the time to know (diagnostic
+      metrics, triage tools)? the time to remediate (recovery tools, automation, automated
+      rollback for deployment-related incidents)? Then ask what prevents recurrence altogether.
+    common_mistakes:
+      - Corrective actions with no action items (they never happen).
+      - Only prevention and nothing for detection or recovery.
+      - Actions scoped to this team when the gap is shared.
+    example: >-
+      CA-2 (LL-2, halves TTD): alert on the order-submit success SLO using multi-window burn
+      rate, so a real 11% failure pages within 2 minutes without adding noise. Action items
+      AI-3, AI-4.
+    interview_prompt: >-
+      For each lesson: what will we change? Which of time to detect, time to know, time to
+      remediate, or prevention does it improve?
+    template_guidance: "High-level solutions derived from the lessons. Each must link to one or more action items in section 9. For each, ask: what would halve the time to detect (health metrics, alarms)? halve the time to know (diagnostic metrics, triage tools)? halve the time to remediate (recovery tools, automation, automated rollback for deployment-related incidents)? And what prevents recurrence outright? See Appendix A.8."
+    rules:
+      - PIR-CA-NONE
+      - PIR-CA-LL-UNKNOWN
+      - PIR-LESSON-NO-CA
+      - PIR-CA-NO-HALVING
+  - id: action_items
+    title: Action items
+    template_section: "9"
+    writing_order: 8
+    expectation: >-
+      Individual tasks that someone can do and someone else can verify as done, each traced to
+      a corrective action, with an owner (a person or team who has agreed to it), a due date
+      that is reasonable for the work rather than driven by the roadmap, a status, and a
+      sentence on how it helps prevent recurrence. Be bold: if another team or a shared tool is
+      the right place for the fix, say so and engage them. Never assign an action to someone
+      who has not agreed. Five well-chosen items beat twenty.
+    common_mistakes:
+      - "\"Investigate\" or \"Consider\" items with no end state."
+      - Owners who were not asked.
+      - Due dates of "Q4".
+      - Items that address the symptom but would not stop the next occurrence.
+    example: >-
+      AI-3 (CA-2): implement a multi-window burn-rate alert on the order-submit success SLO,
+      paging the Order Capture on-call. Owner: Order Capture SRE champion (agreed). Due
+      2026-10-03. Halves TTD: an 11% failure pages within about 2 minutes.
+    interview_prompt: >-
+      For each corrective action: what are the concrete, verifiable tasks, who has agreed to own
+      each, by when, and how does each prevent recurrence?
+    template_guidance: "Concrete, trackable tasks with an owner (a role or team, agreed with them, never assigned blindly) and a reasonable due date. Each must trace to a corrective action and should help prevent recurrence; say how. Be bold: other teams may have seen this before, and a change to a shared tool may reduce impact across the company. Do not let roadmap pressure set the dates. See Appendix A.9."
+    rules:
+      - PIR-AI-NONE
+      - PIR-AI-CA-UNKNOWN
+      - PIR-CA-NO-AI
+      - PIR-AI-VAGUE
+      - PIR-AI-NOT-AGREED
+      - PIR-AI-DUE-BEFORE-INCIDENT
+      - PIR-AI-DUE-FAR
+  - id: review
+    title: Review and sign-off
+    template_section: "10"
+    writing_order: 10
+    expectation: >-
+      A record of each review stage with the reviewer's role, date and the material changes
+      requested. Reviews are sequential: team first, then GO, then executive GO where the
+      severity or customer exposure warrants it. Align with affected customers and stakeholders
+      before any wider presentation. Questions you cannot answer in the review are recorded with
+      an owner and a date rather than guessed at.
+    common_mistakes:
+      - Publishing before the GO review has an outcome.
+      - Open questions answered from memory after the meeting with no record.
+    example: >-
+      Team review 2026-09-08: asked for the de-duplicated customer count and for RC-C to go one
+      why deeper. GO review 2026-09-12: accepted; AI-6 added. Open question Q-001: how many of
+      the 1,900 non-re-attempted orders were placed through another channel? Owner: product
+      owner, due 2026-09-19.
+    interview_prompt: >-
+      Which reviews have happened, who reviewed (by role), when, and what changed as a result?
+      What questions are still open, who owns them and by when?
+    template_guidance: "Do multiple reviews: team, then GO, and executive GO where warranted. Align with customers and stakeholders before any wider presentation so there are no surprises. Record who reviewed (by role), when, and what changed. Reviewers focus on timeline, impact and metrics, Five Whys and solutions, whether action items can prevent repeat issues, and whether due dates are in place. See Appendix B."
+    rules:
+      - PIR-GO-REVIEW-NO-TEAM
+      - PIR-PUBLISHED-NO-REVIEW
+      - PIR-PUBLISHED-OPEN-QUESTION
+  - id: cross_cutting
+    title: Whole document
+    template_section: "all"
+    writing_order: 99
+    expectation: >-
+      The PIR is blameless throughout: it describes processes, not people, and the blame
+      lexicon (catalogs/blame-lexicon.yaml) is a blocker in any prose field. Identifiers are
+      unique. Every accountable party (PIR owner, action-item owner, question owner) is a
+      person or a team, never a placeholder.
+    common_mistakes:
+      - "\"Human error\" in a root cause."
+      - Two action items with the same id after a copy-paste.
+      - An owner of "TBD".
+    example: >-
+      Not "the engineer carelessly raised the limit" but "the concurrency limit was raised
+      without a corresponding pool change; nothing documents or enforces the relationship".
+    interview_prompt: >-
+      Reword any statement that names or judges a person so that it names the process gap
+      instead.
+    template_guidance: "Blameless throughout: processes, not people. Replace every [yellow field] with incident-specific content and delete the grey guidance boxes once a section is written."
+    rules:
+      - PIR-SCHEMA
+      - PIR-BLAME-LANGUAGE
+      - PIR-ID-DUPLICATE
+      - PIR-OWNER-PLACEHOLDER
+      - PIR-DATE-INVALID
+      - PIR-EVIDENCE-PLACEHOLDER

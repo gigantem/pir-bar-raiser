@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "RC-C has nothing learned from it."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-RC-NO-LESSON]
+mutations:
+  - {op: remove, path: /lessons/2}

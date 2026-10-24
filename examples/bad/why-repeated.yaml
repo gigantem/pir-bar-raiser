@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A chain that gives the same answer twice is deeper on paper only."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect_warnings: [PIR-WHY-REPEATED]
+mutations:
+  - {"op": "replace", "path": "/five_whys/0/whys/1/because", "value": "Requests timed out waiting for a database connection; pool in-use was 60 of 60 from 09:11."}

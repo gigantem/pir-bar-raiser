@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "The only digits in the summary are an incident id, a date and times: none of them is a figure."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-SUMMARY-NUMBER]
+mutations:
+  - {op: replace, path: /summary, value: "Order Capture API experienced elevated errors (INC-2026-0412, CHG-88213) from 09:12 to 10:26 AEST on 3 September 2026 after a configuration change exhausted the database connection pool."}

@@ -1,0 +1,7 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Copyright (C) 2026 Mike Gigante <mike.gigante@gmail.com>
+description: "A PIR draft due years before the incident was mitigated is a placeholder date."
+base: examples/good/order-capture-pool-exhaustion.yaml
+expect: [PIR-DUE-BEFORE-INCIDENT]
+mutations:
+  - {op: replace, path: /document_control/draft_due, value: "2020-01-01"}
