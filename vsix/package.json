@@ -2,7 +2,7 @@
   "name": "pir-assessor",
   "displayName": "PIR Assessor",
   "description": "Assess, interview and review Post-Incident Reviews with GitHub Copilot: the pir-assessor, pir-interviewer and pir-reviewer agents, the /assess-pir, /interview-pir and /review-pir prompts, and the pir-assessment skill with its gate tools, schemas, catalogs and templates bundled.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "gigantem",
   "license": "GPL-3.0-or-later",
   "engines": {

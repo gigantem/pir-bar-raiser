@@ -12,7 +12,8 @@ held against: the ledger's questions are the interview's questions (same ids, ru
 and blocking flags, none missing), and every `applied_to` pointer names something that exists
 in the packet, which is what "the answer reached the packet" means mechanically.
 
-Exit 0 when every ledger passes; 1 otherwise, listing each finding.
+Exit 0 when every ledger passes; 1 otherwise, listing each finding; 2 when it could not run (a wrong
+argument, an unreadable schema, or a ledger that cannot be opened).
 """
 
 from __future__ import annotations
@@ -521,7 +522,11 @@ def validate_path(path: Path, schema: dict[str, Any], repo_root: Path) -> int:
     print(f"VALIDATING {path}", file=sys.stderr)
     try:
         ledger = validate_pir.load_document(path)
-    except (OSError, ValueError, yaml.YAMLError) as exc:
+    except OSError as exc:
+        # Missing, unreadable or a directory: nothing was validated, so this is exit 2, not a gap.
+        print(f"ERROR {path} cannot be opened, so nothing was validated: {exc}", file=sys.stderr)
+        return 2
+    except (ValueError, yaml.YAMLError) as exc:
         print(f"FAIL {path}\n  - LEDGER-SCHEMA: ledger could not be read: {exc}", file=sys.stderr)
         return 1
     findings = validate_ledger(ledger, schema, repo_root)

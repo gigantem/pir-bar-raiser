@@ -334,3 +334,15 @@ def test_the_package_steps_do_not_rerun_the_smoke() -> None:
             and "build_antigravity.py --package --no-smoke" in text
         )
         assert "build_vsix.py --check" in text and "build_antigravity.py --check" in text
+
+
+def test_no_staged_text_runs_python_with_the_working_directory_on_its_path(staged: Path) -> None:
+    """What the agents read in the installed extension is what they run: the preamble's check included."""
+    import test_documentation_truth as truth
+
+    found = {
+        str(p.relative_to(staged)): runs
+        for p in sorted(staged.rglob("*.md"))
+        if (runs := truth.unsafe_python_runs(p.read_text(encoding="utf-8")))
+    }
+    assert found == {}

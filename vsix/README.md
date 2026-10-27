@@ -21,11 +21,14 @@ the blame and vague-action lexicons, the reviewed template and a worked example.
 - Python 3.12 or later on `PATH` as `python`, with the three packages the tools import:
 
   ```
-  python -m pip install -r "<extensions dir>/gigantem.pir-assessor-<version>/skills/pir-assessment/requirements.txt"
+  python -P -m pip install -r "<extensions dir>/gigantem.pir-assessor-<version>/skills/pir-assessment/requirements.txt"
   ```
 
-  `<extensions dir>` is `%USERPROFILE%\.vscode\extensions` on Windows, `~/.vscode/extensions`
-  on macOS and Linux, and `~/.vscode-server/extensions` on the remote side of WSL, SSH or a
+  `-P` stops Python importing files from the folder you run it in, so a file in a workspace cannot
+  stand in for a package; keep it.
+
+  `<extensions dir>` is `$env:USERPROFILE\.vscode\extensions` on Windows in PowerShell
+  (`%USERPROFILE%\.vscode\extensions` in cmd), `~/.vscode/extensions` on macOS and Linux, and `~/.vscode-server/extensions` on the remote side of WSL, SSH or a
   container. The agents check the import before their first command and stop with this
   instruction if it fails; they do not work around it.
 - Optional: Word, to open the rendered `.docx`.
@@ -40,9 +43,11 @@ goes to the model behind GitHub Copilot Chat under your Copilot terms. Keep real
 private repository, and give the agents only what your organisation lets you share with
 Copilot.
 
-You receive `pir-assessor-<version>.vsix` from whoever distributes the extension in your
-organisation. This release has not yet been run in a VS Code with Copilot Chat enabled; report
-anything that does not work to them.
+Download `pir-assessor-<version>.vsix` and `SHA256SUMS` from the latest release,
+<https://github.com/gigantem/pir-bar-raiser/releases/latest>, and check the file against
+`SHA256SUMS` (the installation guide shows how on each system). This release has not yet been run
+in a VS Code with Copilot Chat enabled; report anything that does not work at
+<https://github.com/gigantem/pir-bar-raiser/issues>.
 
 - Extensions view (`Ctrl+Shift+X`) > `...` menu > **Install from VSIX...** > pick
   `pir-assessor-<version>.vsix`, or
@@ -73,8 +78,9 @@ Then, in Copilot Chat:
 2. `/interview-pir pirs/<stem>.yaml 1`. The interview is rendered for the room; the ledger records
    each answer with the named person who gave it and the evidence; the agent applies the answers to
    the packet and re-runs the gate. Repeat with round 2 while findings remain.
-3. `/review-pir pirs/<stem>.yaml go` (stages: `readiness`, `team`, `go`, `exec_go`). A packet the
-   gate rejects cannot pass review; a green gate is not a finding-free PIR.
+3. `/review-pir pirs/<stem>.yaml readiness` first (stages: `readiness`, `team`, `go`, `exec_go`). A
+   review cannot be ahead of the packet's `status`, which the PIR owner moves on as it goes to team
+   and GO review. A packet the gate rejects cannot pass review; a green gate is not a finding-free PIR.
 4. Ask the agent to render the finished PIR into the template:
    `python "<pir-assessment>/tools/render_pir_docx.py" --packet pirs/<stem>.yaml --output <stem>.docx`.
 

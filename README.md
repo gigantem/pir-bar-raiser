@@ -3,6 +3,9 @@
 **Assess, interview and review Post-Incident Reviews (PIRs) with an AI assistant, without letting it
 make anything up.**
 
+PIR Assessor is the product; this repository, `pir-bar-raiser`, is its source; and the extension is
+installed as `gigantem.pir-assessor` in VS Code and as the `pir-assessor` plugin in Antigravity.
+
 PIR Assessor gives GitHub Copilot in VS Code, and Google Antigravity, three agents and a set of gate
 tools for writing PIRs that hold up:
 
@@ -27,9 +30,13 @@ owner and answerer is named.
 1. **[Download](https://github.com/gigantem/pir-bar-raiser/releases/latest)** the package for your
    editor from the latest release: `pir-assessor-<version>.vsix` for VS Code, or
    `pir-assessor-<version>-antigravity.zip` (Windows) / `.tar.gz` (macOS, Linux) for Antigravity.
-2. **[Install](docs/install.md)** Python 3.12 or later and the three packages the tools need, then
-   the extension.
+2. **[Install](docs/install.md)** Python 3.12 or later, then the extension, then the three packages
+   the tools need, from the list the extension carries.
 3. **[Use it](docs/usage.md):** open the repository that will hold your PIR and run `/assess-pir`.
+
+Both packages are verified on every build, but neither has yet been run in a live VS Code with
+Copilot Chat or a live Antigravity session. Reports from first users are welcome as
+[issues](https://github.com/gigantem/pir-bar-raiser/issues).
 
 If something does not work, see **[Troubleshooting](docs/troubleshooting.md)** and the
 **[FAQ](docs/faq.md)**. How the method works, in full, is **[docs/method.md](docs/method.md)**; what
@@ -76,17 +83,20 @@ Everything the extensions contain is built from this repository, and the tools r
 
 ```bash
 git clone https://github.com/gigantem/pir-bar-raiser.git && cd pir-bar-raiser
-uv venv --python 3.12 .venv
+uv venv --python 3.12 .venv            # with uv (https://docs.astral.sh/uv/); or with plain Python:
 uv pip install --python .venv/bin/python --require-hashes -r requirements-dev.lock
+#   python3.12 -P -m venv .venv && .venv/bin/python -P -m pip install --require-hashes -r requirements-dev.lock
 
 .venv/bin/python tools/validate_pir.py examples/good/order-capture-pool-exhaustion.yaml   # a PIR that passes
 .venv/bin/python tools/validate_pir.py examples/draft/order-capture-draft.yaml            # a draft and its gaps
 .venv/bin/python tools/render_pir_docx.py --packet examples/good/order-capture-pool-exhaustion.yaml --output PIR.docx
 
-bash tools/run_local_gates.sh          # every gate CI runs, in one command
-python tools/build_vsix.py --package   # out/pir-assessor-<version>.vsix (needs node 22 and npm)
-python tools/build_antigravity.py --package
+bash tools/run_local_gates.sh                      # every gate CI runs, in one command
+.venv/bin/python tools/build_vsix.py --package     # out/pir-assessor-<version>.vsix (needs node 22 and npm)
+.venv/bin/python tools/build_antigravity.py --package
 ```
+
+Without node 22 and npm, the runner reports packaging the `.vsix` as SKIP: not checked, never a pass.
 
 [CONTRIBUTING.md](CONTRIBUTING.md) explains how the pieces fit and what a change must carry.
 

@@ -37,7 +37,7 @@ interview generator holds a supplied gap report to a fresh validation of the pac
   that is named otherwise.
 - The three validators (`validate_pir.py`, `validate_pir_ledger.py`, `validate_pir_review.py`) exit 0 on PASS
   and 1 when the file has errors. Exit 1 is the result: the findings are what you report, not a failed command.
-  Exit 2 means the tool could not run (a wrong argument, an unreadable schema or catalog): stop and report it,
+  Exit 2 means the tool could not run (a wrong argument, an unreadable schema or catalog, or a file that cannot be opened, such as a mistyped path): stop and report it,
   never read it as a verdict. The generators and renderers exit 0 when they wrote their output and 1 when they
   could not (an unreadable input, or a refusal such as a scaffold aimed under `reviews/`); read the message.
 

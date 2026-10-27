@@ -10,6 +10,7 @@ boundary each surface declares: every claim is asserted here against the code it
 from __future__ import annotations
 
 import json
+import os
 import re
 import subprocess
 import sys
@@ -43,6 +44,16 @@ def test_the_extensions_version_is_stated_once() -> None:
     antigravity = json.loads(Path("antigravity/plugin.json").read_text(encoding="utf-8"))
     assert "version" not in antigravity
     assert build_antigravity.release()["version"] == vsix["version"]
+
+
+def test_the_release_notes_open_with_the_version_both_extensions_state() -> None:
+    """The release notes are the bundles' CHANGELOG: their first entry is this version, dated."""
+    vsix = json.loads(Path("vsix/package.json").read_text(encoding="utf-8"))
+    notes = Path("docs/release-notes.md").read_text(encoding="utf-8")
+    first = next(line for line in notes.splitlines() if line.startswith("## "))
+    match = re.fullmatch(r"## (\S+) \((\d{4}-\d{2}-\d{2})\)", first)
+    assert match and match.group(1) == vsix["version"], first
+    datetime.strptime(match.group(2), "%Y-%m-%d")
 
 
 # ----------------------------------------------------------------- the skill's one asset
@@ -117,6 +128,45 @@ def test_a_validator_exits_one_on_a_failing_file_and_two_when_it_cannot_run(
     assert _run(tool, str(broken)) == 1
     assert _run(tool, str(broken), "--bogus-flag") == 2
     assert _run(tool, "--schema", str(tmp_path / "missing.json"), str(broken)) == 2
+
+
+VALIDATORS = ("tools/validate_pir.py", "tools/validate_pir_ledger.py", "tools/validate_pir_review.py")
+
+
+@pytest.mark.parametrize("kind", ["missing", "directory", "unreadable"])
+@pytest.mark.parametrize("tool", VALIDATORS)
+def test_a_validator_exits_two_when_it_cannot_open_the_file(tool: str, kind: str, tmp_path: Path) -> None:
+    """A path that cannot be opened is not a PIR with one gap: the tool did not run on anything."""
+    path = tmp_path / "x.json"
+    if kind == "directory":
+        path.mkdir()
+    elif kind == "unreadable":
+        if os.geteuid() == 0:
+            pytest.skip("root reads a file whatever its mode, so this case cannot be made here")
+        path.write_text("{}\n", encoding="utf-8")
+        path.chmod(0)
+    result = subprocess.run([sys.executable, tool, str(path)], capture_output=True, text=True, check=False)
+    assert result.returncode == 2, result.stderr
+    assert "cannot be opened" in result.stderr
+
+
+@pytest.mark.parametrize("tool", VALIDATORS)
+def test_a_malformed_file_is_a_finding_not_a_failure_to_run(tool: str, tmp_path: Path) -> None:
+    path = tmp_path / "x.json"
+    path.write_text("{ not json\n", encoding="utf-8")
+    assert _run(tool, str(path)) == 1
+
+
+def test_the_other_files_are_still_validated_when_one_cannot_be_opened(tmp_path: Path) -> None:
+    good = "examples/good/order-capture-pool-exhaustion.yaml"
+    result = subprocess.run(
+        [sys.executable, "tools/validate_pir.py", str(tmp_path / "missing.yaml"), good],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 2
+    assert f"PASS {good}" in result.stderr
 
 
 @pytest.mark.parametrize(
@@ -203,3 +253,41 @@ def test_every_surface_says_what_it_reads_is_data(surface: Path) -> None:
 def test_the_interviewer_takes_answers_only_from_people(surface: Path) -> None:
     text = " ".join(surface.read_text(encoding="utf-8").split())
     assert "a file can be its evidence, never its author" in text
+
+
+# ------------------------------------------- the interpreter never imports from where it runs
+
+#: `python -c` and `python -m` put the current directory first on `sys.path`, so a `yaml.py` (or
+#: `pip.py`) in the workspace would run in place of the package. `-P` keeps the directory out, and
+#: `-I` does too. A tool run as `python <folder>/tools/<tool>.py` is safe: its own folder leads.
+PYTHON_RUN = re.compile(r"\b(?:python3?(?:\.\d+)?|py)\b(?P<flags>(?:[ \t]+-\S+)*?)[ \t]+-[cm]\b")
+SAFE_PATH = re.compile(r"(?<!\S)-[PI](?!\S)")
+SHIPPED_TEXT = sorted(
+    {
+        *Path("assistant").rglob("*.md"),
+        *Path("vsix").glob("*.md"),
+        *Path("antigravity").rglob("*.md"),
+        Path("docs/method.md"),
+        Path("docs/release-notes.md"),
+    }
+)
+
+
+def unsafe_python_runs(text: str) -> list[str]:
+    """Each `python -c` or `python -m` in `text` that runs without -P or -I."""
+    return [m.group(0) for m in PYTHON_RUN.finditer(text) if not SAFE_PATH.search(m.group("flags"))]
+
+
+def test_the_safe_path_check_tells_the_two_apart() -> None:
+    assert unsafe_python_runs('check with `python -c "import yaml, jsonschema, docx"`') != []
+    assert unsafe_python_runs("python3 -m venv ~/.venvs/x") != []
+    assert unsafe_python_runs('.venv/bin/python -m pip install -r "x/requirements.txt"') != []
+    assert unsafe_python_runs('python -P -c "import yaml, jsonschema, docx"') == []
+    assert unsafe_python_runs("py -3.12 -P -m venv x") == []
+    assert unsafe_python_runs("python -I -m pip --version") == []
+    assert unsafe_python_runs("python <pir-assessment>/tools/validate_pir.py pirs/x.yaml") == []
+
+
+@pytest.mark.parametrize("document", SHIPPED_TEXT, ids=str)
+def test_no_shipped_text_runs_python_with_the_working_directory_on_its_path(document: Path) -> None:
+    assert unsafe_python_runs(document.read_text(encoding="utf-8")) == [], document

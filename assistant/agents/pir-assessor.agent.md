@@ -42,7 +42,7 @@ PIR; a link here is relative to this file, and the path in its text names the fi
    on every timeline row and every why.
 3. Run `python tools/validate_pir.py pirs/<stem>.yaml --gap-report <path>` and read every finding. Exit 1 with
    findings is the expected result for a new packet: it is the gap report, not a failed command. Exit 2 means
-   the tool could not run (a wrong argument, an unreadable schema or catalog): stop and report that instead.
+   the tool could not run (a wrong argument, an unreadable schema or catalog, or a file that cannot be opened, such as a mistyped path): stop and report that instead.
 4. Fix what is a transcription error (a typo in a timestamp, a missing timezone). Leave what is a real gap.
 5. Report: the packet path, the gap report path, the counts of errors and warnings, and the sections with gaps,
    then hand over to the `pir-interviewer` persona for the owner interview. The gap report is for the reader;

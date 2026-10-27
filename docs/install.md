@@ -1,8 +1,13 @@
 # Installing PIR Assessor
 
-Three steps: download the package for your editor, install Python and the three packages the tools
-use, then install the extension. Each step below has a part for each system; skip the ones that are
-not yours.
+Download the package for your editor, install Python 3.12 or later, install the extension, then
+install the three packages the tools use from the list the extension carries. Each step below has a
+part for each system; skip the ones that are not yours.
+
+Both packages are verified on every build, and their tools run end to end from a fresh workspace,
+but neither has yet been run in a live VS Code with Copilot Chat or a live Antigravity session. If
+something does not work, [open an issue](https://github.com/gigantem/pir-bar-raiser/issues) with
+your editor and its version.
 
 - [1. Download](#1-download)
 - [2. Python and its packages](#2-python-and-its-packages)
@@ -28,10 +33,14 @@ shasum -a 256 -c SHA256SUMS --ignore-missing      # macOS
 ```
 
 ```powershell
-Get-FileHash .\pir-assessor-<version>.vsix -Algorithm SHA256   # Windows: compare with SHA256SUMS
+# Windows: prints True when the file matches its line in SHA256SUMS
+$file = "pir-assessor-<version>.vsix"
+(Get-FileHash $file -Algorithm SHA256).Hash.ToLower() -eq ((Select-String -SimpleMatch $file SHA256SUMS).Line -split '\s+')[0]
 ```
 
-The packages are built reproducibly: the same source and the same tools give the same bytes.
+Every file inside the packages is built reproducibly: the same release builds the same files. The
+archives themselves match `SHA256SUMS` byte for byte when they are built with the same compression
+library ([Building from source](#building-from-source)).
 
 ## 2. Python and its packages
 
@@ -53,6 +62,19 @@ python --version
 If it still says *not found*, turn off the two `python` entries under **Settings › Apps › Advanced app
 settings › App execution aliases** and open a new terminal.
 
+If `python --version` prints an older version, another Python comes first on your `PATH`. `py -0`
+lists the versions installed. Make a virtual environment with 3.12 and use it in the terminal the
+agents use:
+
+```powershell
+py -3.12 -P -m venv "$env:USERPROFILE\.venvs\pir-assessor"
+& "$env:USERPROFILE\.venvs\pir-assessor\Scripts\Activate.ps1"
+python --version
+```
+
+With the Python extension installed, VS Code can do the activation for you: choose that environment
+with **Python: Select Interpreter**, and new terminals activate it.
+
 **macOS.** Install Python 3.12 or later from [python.org](https://www.python.org/downloads/) or with
 Homebrew (`brew install python@3.12`). If `python` is not found but `python3` is, use a virtual
 environment (below), which provides `python`.
@@ -62,29 +84,34 @@ The dependable way to get a `python` of the right version is a virtual environme
 
 ```bash
 python3 --version                       # 3.12 or later
-python3 -m venv ~/.venvs/pir-assessor
+python3 -P -m venv ~/.venvs/pir-assessor
 source ~/.venvs/pir-assessor/bin/activate
 echo 'source ~/.venvs/pir-assessor/bin/activate' >> ~/.bashrc    # so every new terminal has it
 ```
 
 **Then install the packages** (PyYAML, jsonschema, python-docx). The extension carries the list as
 `requirements.txt` inside its skill folder, so do this **after** installing the extension (step 3),
-with the path for your editor:
+with the path for your editor from the table below:
 
 ```bash
-python -m pip install -r "<skill folder>/requirements.txt"
+python -P -m pip install -r "<skill folder>/requirements.txt"
 ```
+
+Every command in these guides that runs Python with `-c` or `-m` carries `-P`. It stops Python
+importing files from the folder you run it in, so a file in a workspace cannot stand in for a
+package. Keep it. If Python answers *Unknown option: -P*, it is older than 3.11, below the 3.12 the
+tools need.
 
 | Installed in | `<skill folder>` |
 |---|---|
 | VS Code on macOS and Linux | `~/.vscode/extensions/gigantem.pir-assessor-<version>/skills/pir-assessment` |
-| VS Code on Windows | `%USERPROFILE%\.vscode\extensions\gigantem.pir-assessor-<version>\skills\pir-assessment` |
+| VS Code on Windows (PowerShell) | `$env:USERPROFILE\.vscode\extensions\gigantem.pir-assessor-<version>\skills\pir-assessment` (in cmd, `%USERPROFILE%` instead of `$env:USERPROFILE`) |
 | VS Code connected to WSL, SSH or a container | `~/.vscode-server/extensions/gigantem.pir-assessor-<version>/skills/pir-assessment` |
 | Antigravity App or IDE | `~/.gemini/config/plugins/pir-assessor/skills/pir-assessment` |
 | Antigravity in one workspace | `<workspace>/.agents/plugins/pir-assessor/skills/pir-assessment` |
 | Antigravity CLI | `~/.gemini/antigravity-cli/plugins/pir-assessor/skills/pir-assessment` |
 
-Check it worked: `python -c "import yaml, jsonschema, docx"` prints nothing. The agents run the same
+Check it worked: `python -P -c "import yaml, jsonschema, docx"` prints nothing. The agents run the same
 check before their first command, and stop with this instruction if it fails.
 
 ## 3a. VS Code with GitHub Copilot
@@ -165,14 +192,17 @@ The packages are built from this repository; you can build them yourself:
 ```bash
 git clone https://github.com/gigantem/pir-bar-raiser.git && cd pir-bar-raiser
 git checkout v<version>                     # the release you want
-uv venv --python 3.12 .venv
+uv venv --python 3.12 .venv                 # with uv (https://docs.astral.sh/uv/), or with plain Python:
 uv pip install --python .venv/bin/python --require-hashes -r requirements-dev.lock
+#   python3.12 -P -m venv .venv && .venv/bin/python -P -m pip install --require-hashes -r requirements-dev.lock
 .venv/bin/python tools/build_vsix.py --package          # needs node 22 or later and npm
 .venv/bin/python tools/build_antigravity.py --package
 ```
 
-The packages land in `out/`. Every file inside them is the same as in the release; the archives'
+The packages land in `out/`. Every file inside them is the same as in the release. The archives'
 own bytes match the release's `SHA256SUMS` when your Python's compression library matches the one
-the release was built with, since another version may compress the same files differently. From a clone, `python tools/build_antigravity.py --install` installs the Antigravity
+the release was built with, since another version may compress the same files differently.
+
+From a clone, `.venv/bin/python tools/build_antigravity.py --install` installs the Antigravity
 plugin straight into your App and IDE plugins directory (`--workspace <dir>` or `--plugins-dir <dir>`
 for another one).

@@ -22,7 +22,9 @@ for arg in "$@"; do
   esac
 done
 
-cd "$(git rev-parse --show-toplevel 2>/dev/null || echo .)" || exit 2
+# The tree this runner lives in, never the git toplevel: an export written inside another
+# repository must be checked as itself, not as the repository around it.
+cd "$(dirname "${BASH_SOURCE[0]}")/.." || exit 2
 
 # Interpreter floor is 3.12 (.python-version). Prefer the repo's venv, then any conforming python.
 PY=""

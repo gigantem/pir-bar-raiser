@@ -77,8 +77,13 @@ a date) or waived (with a reason); both are recorded, and the gate still holds t
 |---|---|
 | `readiness` | Before the PIR goes to people: is it ready for a team review? Any packet status. |
 | `team` | The team review. The packet's status must be `in_team_review` or later. |
-| `go` | The GO review. Status `in_go_review` or later. |
+| `go` | The GO review: the review a PIR passes before it is published. Status `in_go_review` or later. |
 | `exec_go` | The executive GO review. Status `in_go_review` or later. |
+
+The packet's `status` (`draft`, `in_team_review`, `in_go_review`, `published`) says how far the PIR has
+got, and it is the PIR owner's to move on, by editing the packet or by telling the agent. A review
+cannot be ahead of it: a `go` review of a packet still in `draft` is refused. Start with `readiness`,
+which fits any status.
 
 The `pir-reviewer` agent starts from a scaffold with every judgement left blank, then forms those
 judgements itself: are the root causes at the level of process and design, not people; are the
@@ -103,7 +108,8 @@ The document follows the PIR template section by section. A section the packet d
 "not yet provided" rather than being filled in. `<skill folder>` is the extension's
 `pir-assessment` folder; [Install](install.md#2-python-and-its-packages) lists where it is.
 
-In Word, update the table of contents after opening (right-click it and choose **Update Field**).
+The table of contents is a field the editor fills when asked: in Word, right-click it and choose
+**Update Field**; in LibreOffice, **Tools › Update › Update All**.
 
 ## Try it on the worked example
 
@@ -142,16 +148,19 @@ any other assistant, or none.
 ## What the results mean
 
 - **Exit codes.** The three validators exit `0` when the file passes, `1` when it has errors (the
-  findings are the result, not a failure of the tool), and `2` when they could not run at all (a
-  wrong argument, an unreadable file): stop and fix that before reading anything into it. The
-  generators and renderers exit `0` when they wrote their output and `1` when they could not.
+  findings are the result, not a failure of the tool), and `2` when they could not run at all: a
+  wrong argument, or a file that cannot be opened, such as a mistyped path ("cannot be opened, so
+  nothing was validated"). Stop and fix that before reading anything into it. A file that opens but
+  is not valid YAML or JSON is a finding, exit `1`. The generators and renderers exit `0` when they
+  wrote their output and `1` when they could not.
 - **Errors and warnings.** An error blocks: the PIR is not complete until it is gone. A warning is
   the softer guidance (averages instead of percentiles, a shallow Five Whys, a late due date) and asks
   a person to look.
 - **Rule ids.** Every finding carries a stable id (`PIR-…`, `LEDGER-…`, `REVIEW-…`), the template
   section it belongs to and where in the file it is. The interview asks one question per finding.
 - **SKIP is not PASS.** `check_artifact_conventions.py` reports a skip when there is nothing filed
-  yet; that means nothing was checked, not that everything is fine.
+  yet, with exit `2` and a line starting `SKIP:`; that means nothing was checked, not that everything
+  is fine.
 - **A green gate is not a finished PIR.** It proves presence, shape, consistency and vocabulary. The
   review is where substance is judged.
 

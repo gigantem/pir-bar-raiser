@@ -22,7 +22,8 @@ A scaffold (tools/render_pir_review_scaffold.py) cannot pass here: its `_scaffol
 the schema and its ASSESSOR_JUDGEMENT_REQUIRED sentinels fail REVIEW-SENTINEL, which exists so
 that a sentinel typed into a string field that happens to satisfy minLength is still caught.
 
-Exit 0 when every artifact passes; 1 otherwise, listing each finding.
+Exit 0 when every artifact passes; 1 otherwise, listing each finding; 2 when it could not run (a
+wrong argument, an unreadable schema, or an artifact that cannot be opened).
 """
 
 from __future__ import annotations
@@ -586,7 +587,11 @@ def validate_path(path: Path, schema: dict[str, Any], repo_root: Path) -> int:
     print(f"VALIDATING {path}", file=sys.stderr)
     try:
         review = load_review(path)
-    except (OSError, ValueError, json.JSONDecodeError) as exc:
+    except OSError as exc:
+        # Missing, unreadable or a directory: nothing was validated, so this is exit 2, not a gap.
+        print(f"ERROR {path} cannot be opened, so nothing was validated: {exc}", file=sys.stderr)
+        return 2
+    except (ValueError, json.JSONDecodeError) as exc:
         print(f"FAIL {path}\n  - REVIEW-SCHEMA: review could not be read: {exc}", file=sys.stderr)
         return 1
     findings = validate_review(review, schema, repo_root, path)

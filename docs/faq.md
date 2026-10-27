@@ -54,6 +54,12 @@ read (your sources, the packet, the interview and the ledger, including names) i
 behind GitHub Copilot Chat or Antigravity under your terms with that service. Share only what your
 organisation allows, and keep real PIRs in a private repository.
 
+### Where are the AI services' terms for my data?
+
+With the service, not here: your organisation's agreement with GitHub for Copilot, or Google's terms
+for Antigravity, govern what happens to what the agents send. Whoever administers those services in
+your organisation can say which terms apply to you.
+
 ### Can someone hide instructions in a source to steer the agent?
 
 The agents are told that what they read is data, never instructions: an instruction inside a chat
@@ -80,6 +86,11 @@ In your workspace, never in the extension: `pirs/`, `interviews/`, `clarificatio
 at its root ([Usage](usage.md#set-up-the-workspace)). Upgrading or removing the extension does not
 touch them.
 
+### Can one repository hold several PIRs?
+
+Yes. Each PIR has its own stem: its packet is `pirs/<stem>.yaml`, and its interviews, ledgers and
+reviews sit under `interviews/<stem>/`, `clarifications/<stem>/` and `reviews/<stem>/`.
+
 ### Can several people work on the same PIR?
 
 Yes: the packet, interviews, ledgers and reviews are text files in your repository, so they are
@@ -88,8 +99,9 @@ named by time, so they do not collide.
 
 ### What are the review stages?
 
-`readiness` (before it goes to people), `team`, `go` and `exec_go`. A team review needs the packet in
-team review or later; a GO review needs it in GO review or later ([Usage: review](usage.md#3-review)).
+`readiness` (before it goes to people), `team`, `go` and `exec_go`. The GO review is the one a PIR
+passes before it is published. A team review needs the packet in team review or later; a GO review
+needs it in GO review or later ([Usage: review](usage.md#3-review)).
 
 ### Why does the interview ask about things I already know?
 
@@ -106,6 +118,14 @@ source](install.md#building-from-source)). [CONTRIBUTING.md](../CONTRIBUTING.md)
 change must carry so the gate stays honest: a new rule ships with its catalog entry, its interview
 question and a fixture that proves it fires.
 
+### Can my organisation share a modified build internally?
+
+GPL-3.0-or-later lets you change the software and use it. Copies made and used inside one
+organisation are generally not "conveying" it, while giving a modified build to anyone outside means
+passing on its source under the same licence. The
+[GNU GPL FAQ](https://www.gnu.org/licenses/gpl-faq.html#InternalDistribution) explains where that line
+sits; this is not legal advice, so check with whoever advises your organisation.
+
 ### Can I just edit the bundled tools in my install?
 
 Please do not: the agents are told never to edit them, and a change there is lost on the next upgrade
@@ -117,7 +137,22 @@ and invisible to everyone else. Change the source and rebuild, or suggest the ch
 
 See [Troubleshooting](troubleshooting.md). If it is not there, [open an
 issue](https://github.com/gigantem/pir-bar-raiser/issues) with your editor and version, what you ran,
-what you expected and the exact message.
+what you expected and the exact message. Never paste a real PIR into an issue; a security problem
+goes privately through the repository's Security tab instead ([SECURITY.md](../SECURITY.md)).
+
+### How do I hear about a new release?
+
+On GitHub, **Watch** the repository and choose **Custom › Releases**. Neither extension updates
+itself: install the new package the same way ([Install: upgrading](install.md#upgrading)). The
+[release notes](release-notes.md) say what changed and whether anything in a workspace must change.
+
+### What if the gate is wrong about my PIR?
+
+Do not edit the tools or the catalogs in your install to make it pass. Open an issue with the rule
+id and the shape of the text it fired on, never the confidential PIR itself. In the meantime the
+interview can record a waiver with its reason, which keeps the decision visible; the gate still holds
+the packet to the rule. In your own copy you can change the rule
+([Changing it](#can-i-change-the-rules-or-the-template-for-my-organisation)).
 
 ### Has it been tried in VS Code and Antigravity?
 

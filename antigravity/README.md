@@ -8,7 +8,7 @@ Full documentation (installing, using, troubleshooting, FAQ) and the source:
 
 > **Not yet run in Antigravity.** Every package is verified and its tools run end to end from a
 > fresh workspace before release, but no Antigravity App, IDE or CLI session has loaded this
-> release yet. Report anything that does not work to whoever gave you the package.
+> release yet. Report anything that does not work at <https://github.com/gigantem/pir-bar-raiser/issues>.
 
 | You type in Antigravity | Subagent | What happens |
 |---|---|---|
@@ -28,8 +28,11 @@ lexicons), the docx templates, and worked examples in every lifecycle state.
 - Python 3.12 or later on `PATH` as `python`, with the three packages the tools import:
 
   ```bash
-  python -m pip install -r "<extension dir>/skills/pir-assessment/requirements.txt"
+  python -P -m pip install -r "<extension dir>/skills/pir-assessment/requirements.txt"
   ```
+
+  `-P` stops Python importing files from the folder you run it in, so a file in a workspace cannot
+  stand in for a package; keep it.
 
   `<extension dir>` is `<plugins dir>/pir-assessor`, where `<plugins dir>` is
   `~/.gemini/config/plugins` (App and IDE, global), `.agents/plugins` in a workspace, or
@@ -46,9 +49,10 @@ the agents only what your organisation lets you share with that service.
 
 ### Install from the package
 
-You receive `pir-assessor-<version>-antigravity.tar.gz` or `.zip` from whoever distributes the
-extension in your organisation. An archive is only transport: neither the App nor the CLI installs
-one directly. Both unpack to a single `pir-assessor/` folder; remove any older `pir-assessor`
+Download `pir-assessor-<version>-antigravity.tar.gz` (macOS, Linux) or `.zip` (Windows) and
+`SHA256SUMS` from the latest release, <https://github.com/gigantem/pir-bar-raiser/releases/latest>,
+and check the archive against `SHA256SUMS`. An archive is only transport: neither the App nor the
+CLI installs one directly. Both unpack to a single `pir-assessor/` folder; remove any older `pir-assessor`
 folder first, so no stale files survive, then unpack into an App or IDE plugins directory:
 
 ```bash
@@ -94,12 +98,14 @@ Then, in Antigravity:
 2. **Interview:** Run `/interview-pir` with the packet and round number. The interviewer generates
    the owner question program under `interviews/`, initializes the clarification ledger under
    `clarifications/`, records answers with named provenance, updates the packet, and re-validates.
-3. **Review:** When the gate is clean, run `/review-pir`. The reviewer prefills the mechanical
-   scaffold, evaluates root causes, honesty of lessons, and preventive capability of action items,
-   and files the findings artifact under `reviews/`.
+3. **Review:** Run `/review-pir` with the packet and a stage, starting with `readiness`, which fits
+   any status; `team`, `go` and `exec_go` need the packet's `status`, which the PIR owner moves on, to
+   have reached that review. The reviewer prefills the mechanical scaffold, evaluates root causes,
+   honesty of lessons, and preventive capability of action items, and files the findings artifact
+   under `reviews/`.
 4. **Render:** When finished, invoke the document renderer:
    ```bash
-   python <pir-assessment>/tools/render_pir_docx.py --packet pirs/<stem>.yaml --output PIR-<id>.docx
+   python <pir-assessment>/tools/render_pir_docx.py --packet pirs/<stem>.yaml --output <stem>.docx
    ```
    or with `--format md` to render markdown.
 

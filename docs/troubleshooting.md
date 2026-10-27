@@ -12,8 +12,8 @@ expected, and the exact message.
 
 ## Python
 
-**The agent stops with "run `python -m pip install -r …/requirements.txt`".**
-The prerequisite check (`python -c "import yaml, jsonschema, docx"`) failed in the agent's terminal.
+**The agent stops with "run `python -P -m pip install -r …/requirements.txt`".**
+The prerequisite check (`python -P -c "import yaml, jsonschema, docx"`) failed in the agent's terminal.
 Run the command it gives you, in the same environment the agent uses (see
 [Install, step 2](install.md#2-python-and-its-packages)). The agents stop here on purpose rather than
 working around it.
@@ -23,15 +23,37 @@ That is Windows' Microsoft Store placeholder. Install Python 3.12 or later
 (`winget install --id Python.Python.3.12 -e`) and open a new terminal. If it persists, turn off the
 `python` entries under **Settings › Apps › Advanced app settings › App execution aliases**.
 
+**`pip` says "Could not open requirements file" and the path starts with `%USERPROFILE%`.**
+PowerShell, VS Code's default terminal on Windows, does not expand `%USERPROFILE%`; that is cmd's
+form. In PowerShell use `$env:USERPROFILE` instead
+([Install, step 2](install.md#2-python-and-its-packages) gives the whole path).
+
+**`python --version` prints something below 3.12 (Windows).**
+Another Python comes first on your `PATH`. `py -0` lists the versions installed; make a virtual
+environment with 3.12 and activate it in the terminal the agents use
+([Install, step 2](install.md#2-python-and-its-packages) shows how).
+
 **`python --version` prints Python 2.7, or something below 3.12 (Linux, macOS, WSL).**
 Your system's `python` is an older interpreter. Create a virtual environment with a newer one and
 activate it in every terminal (the [Install](install.md#2-python-and-its-packages) guide shows how);
 inside it, `python` is the right version. The tools themselves stop with "requires Python 3.12 or
 later" when run by an older one.
 
-**`python3 -m venv` fails with "ensurepip is not available" (Debian, Ubuntu).**
+**Python says "Unknown option: -P".**
+That Python is older than 3.11, so it is below the 3.12 the tools need. Install a newer one, or use a
+virtual environment made with one (see the next entries and
+[Install, step 2](install.md#2-python-and-its-packages)). Do not drop the `-P`: it is what stops a file
+in the workspace from running in place of a package.
+
+**`python3 -P -m venv` fails with "ensurepip is not available" (Debian, Ubuntu).**
 Install the venv module for your Python first, for example `sudo apt install python3-venv` (or
 `python3.12-venv`), then create the environment again.
+
+**A tool stops with `ModuleNotFoundError: No module named 'yaml'` (or `'jsonschema'`, or `'docx'`).**
+The Python that ran the tool does not have the three packages. This is a traceback from Python, not
+one of the gate's findings. Install the packages into the Python you run the tools with
+([Install, step 2](install.md#2-python-and-its-packages)); their names on PyPI are `PyYAML`,
+`jsonschema` and `python-docx`, so `docx` comes from `python-docx`.
 
 **`pip install` fails, or says "externally-managed-environment".**
 Your system Python does not let pip install into it. Use a virtual environment as above and run the
@@ -39,13 +61,16 @@ install inside it.
 
 **It worked in one terminal but not in the editor.**
 The editor's terminal may start a different shell or not activate your environment. Open a new
-terminal in the editor and run `python --version` and `python -c "import yaml, jsonschema, docx"`
+terminal in the editor and run `python --version` and `python -P -c "import yaml, jsonschema, docx"`
 there; add the activation line to your shell's startup file if needed.
 
 ## VS Code
 
 **`/assess-pir` does not appear in Copilot Chat.**
 
+- This release has not yet been run in a live VS Code with Copilot Chat, so the cause may be ours.
+  Go through the checks below, and if none helps, [open an
+  issue](https://github.com/gigantem/pir-bar-raiser/issues) with your VS Code and Copilot Chat versions.
 - Check the extension is installed: `code --list-extensions --show-versions` lists
   `gigantem.pir-assessor`.
 - Check VS Code is 1.109 or later (**Help › About**) and GitHub Copilot Chat is installed and signed
@@ -90,7 +115,8 @@ first, then unpack.
 
 **A validator "fails" with a list of findings (exit 1).**
 That is the result, not a broken tool: the findings are the gaps. Exit 2 is different: the tool could
-not run (a wrong argument, an unreadable file). See
+not run, because of a wrong argument or a file that cannot be opened ("cannot be opened, so nothing
+was validated"), most often a mistyped path. See
 [Usage: what the results mean](usage.md#what-the-results-mean).
 
 **"REFUSING TO WRITE … reviews/ holds attestations a reviewer signed".**
@@ -126,7 +152,8 @@ refused. Keep cited files inside the workspace, or mark evidence that lives else
 ## The rendered document
 
 **The table of contents is empty.**
-Word fills it on request: right-click it and choose **Update Field**, or press F9.
+The editor fills it on request. In Word, right-click it and choose **Update Field**, or press F9; in
+LibreOffice, **Tools › Update › Update All**.
 
 **Sections say "not yet provided".**
 The packet has no content for them yet. The renderer never fills a gap; close it through the

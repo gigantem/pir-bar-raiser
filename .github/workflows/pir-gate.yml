@@ -16,7 +16,9 @@ jobs:
     # GitHub's hosted Ubuntu runner, unless the repository variable RUNS_ON names others as a JSON
     # value (for example '["self-hosted", "linux"]'). Nothing here needs root or Docker; Python and
     # node come from actions/setup-*.
-    runs-on: ${{ fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
+    # A pull request from a fork runs its author's code, so it always gets a GitHub-hosted runner;
+    # RUNS_ON (which may name self-hosted machines) chooses for everything else.
+    runs-on: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name != github.repository) && 'ubuntu-latest' || fromJSON(vars.RUNS_ON || '"ubuntu-latest"') }}
     timeout-minutes: 15
     permissions:
       contents: read

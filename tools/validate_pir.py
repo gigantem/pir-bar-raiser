@@ -12,7 +12,8 @@ Two layers:
    it can be named, counted, grouped by section by the interview generator, and asserted on
    individually.
 
-Exit code: 1 when any packet carries an error-severity finding, 0 otherwise. Warnings never
+Exit code: 1 when any packet carries an error-severity finding, 0 otherwise, and 2 when it could not
+run: a wrong argument, an unreadable schema, or a packet that cannot be opened. Warnings never
 change the exit code unless ``--warnings-as-errors`` is given; they are still written to the
 gap report, because the interview asks about them too.
 
@@ -1416,7 +1417,13 @@ def validate_path(
     print(f"VALIDATING {path}", file=sys.stderr)
     try:
         packet = load_document(path)
-    except (OSError, ValueError, yaml.YAMLError) as exc:
+    except OSError as exc:
+        # Missing, unreadable or a directory: nothing was validated, so this is exit 2, not a gap.
+        findings = Findings()
+        findings.rule("PIR-SCHEMA", f"packet cannot be opened: {exc}")
+        print(f"ERROR {path} cannot be opened, so nothing was validated: {exc}", file=sys.stderr)
+        return 2, gap_report_entry(path, None, findings)
+    except (ValueError, yaml.YAMLError) as exc:
         findings = Findings()
         findings.rule("PIR-SCHEMA", f"packet could not be read: {exc}")
         print(f"FAIL {path}\n  - {findings.items[0].render()}", file=sys.stderr)
